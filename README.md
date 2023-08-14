@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-# InterfaceDiagram
-=======
-# Interface Diagram Generator
+# Interface Diagram - Draw.io
 
 This project provides tools to generate a E2E interface diagrams based on data provided. It fetches data, processes it, and generates a diagrammatic representation of interfaces.
 
