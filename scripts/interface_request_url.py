@@ -1,3 +1,5 @@
+from src.main.JSONParser import JSONParser
+
 import os
 import json
 import requests
@@ -33,30 +35,33 @@ for filename in os.listdir(source_dir):
         with open(os.path.join(source_dir, filename), 'r', encoding='utf-8') as file:
             data = json.load(file)
 
-            app_name = None  # Initialize app_name to None at the beginning of each iteration
-            
-            # Extract app_name for app_type as 'connected_app'
-            for item in data:
-                if item['app_type'] == 'connected_app':
-                    app_name = item['app_name']
-                    break
+        app_name = None  # Initialize app_name to None at the beginning of each iteration
+        
+        # Extract app_name for app_type as 'connected_app'
+        for item in data:
+            if item['app_type'] == 'connected_app':
+                app_name = item['app_name']
+                break
 
-            # If app_name is not found, set it to filename
-            if app_name is None:
-                app_name = ''
+        # If app_name is not found, set it to filename
+        if app_name is None:
+            app_name = ''
+
+        parser = JSONParser()
+        interfaces = parser.json_to_object(data)
+        
+        # POST request to API
+        response = requests.post(api_endpoint, json=interfaces)
+        
+        if response.status_code == 200:
+            api_result = response.text  # Assuming the result is plain text
             
-            # POST request to API
-            response = requests.post(api_endpoint, json=data)
-            
-            if response.status_code == 200:
-                api_result = response.text  # Assuming the result is plain text
-                
-                # Add the data to the DataFrame
-                new_index = len(df)
-                df.loc[new_index, 'connected_app'] = app_name
-                df.loc[new_index, 'body'] = json.dumps(data)
-                df.loc[new_index, 'file_name'] = filename
-                df.loc[new_index, 'url'] = api_result
+            # Add the data to the DataFrame
+            new_index = len(df)
+            df.loc[new_index, 'connected_app'] = app_name
+            df.loc[new_index, 'body'] = json.dumps(data)
+            df.loc[new_index, 'file_name'] = filename
+            df.loc[new_index, 'url'] = api_result
                 
                 
 # Save the updated DataFrame to the Excel file

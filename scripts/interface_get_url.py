@@ -3,6 +3,9 @@ sys.path.append('.')
 
 from src.main.InterfaceDiagram import InterfaceDiagram
 from src.main.JSONParser import JSONParser
+from src.main.EncodingHelper import EncodingHelper
+
+
 import json
 import os
 import pandas as pd
@@ -72,8 +75,11 @@ for filename in os.listdir(source_dir):
             try:
                 parser = JSONParser()
                 interfaces = parser.json_to_object(data)
-                diagram = InterfaceDiagram(data)  # Initialize the InterfaceDiagram with the data
-                api_result = diagram.finish()  # Generate the diagram
+
+                encoder = EncodingHelper()
+                
+                diagram = InterfaceDiagram(interfaces, encoder)  # Initialize the InterfaceDiagram with the data
+                api_result = diagram.generate_diagram_url()  # Generate the diagram
 
                 # Add the data to the DataFrame
                 

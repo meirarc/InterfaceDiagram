@@ -3,11 +3,12 @@ sys.path.append('.')
 
 from src.main.InterfaceDiagram import InterfaceDiagram
 from src.main.JSONParser import JSONParser
+from src.main.EncodingHelper import EncodingHelper
 
 import logging
 import json
 
-#file_name = 'src/test/test_data/interfaces.json'
+#file_name = 'src/tests/test_data/interfaces.json'
 file_name = 'diagram/in/backup/app_1CRM.json'
 
 with open(file_name, 'r') as f:
@@ -16,5 +17,6 @@ with open(file_name, 'r') as f:
 parser = JSONParser()
 interfaces = parser.json_to_object(data)
 
-diagram = InterfaceDiagram(data, logging.DEBUG)  # Initialize the InterfaceDiagram with the data
-print(diagram.finish())  # Generate the diagram
+
+diagram = InterfaceDiagram(interfaces, EncodingHelper() ,logging.DEBUG)  # Initialize the InterfaceDiagram with the data
+print(diagram.generate_diagram_url())  # Generate the diagram
