@@ -35,7 +35,7 @@ from src.main.config import (
 class InterfaceDiagram:
     def __init__(self, interfaces, encoder, log_level=logging.ERROR):
         logging.basicConfig(level=log_level)
-        logging.info(f'Init Class InterfaceDiagram')
+        logging.info('Init Class InterfaceDiagram')
 
         self.interfaces = interfaces  # Input File
         self.list_of_ids = []         # Control of ids
@@ -91,7 +91,7 @@ class InterfaceDiagram:
         :param app_lists: A dictionary where keys are the app_types and values are the app_names.
         :return: A dictionary where the keys are the app names and the values are their orders.
         """
-        logging.info(f'create_app_order()')
+        logging.info('create_app_order()')
 
         app_list = (
             app_lists['sap_apps'] +
@@ -111,7 +111,7 @@ class InterfaceDiagram:
         The initial structure must need to contain the:
           mxfile, diagram, mxGraphModel, root, mxCell(0), mxCell(1)
         """
-        logging.info(f'initialize_xml_structure()')
+        logging.info('initialize_xml_structure()')
 
         self.mxfile = ET.Element('mxfile', {'host': 'app.diagrams.net',
                                     'modified': '2023-07-25T12:42:08.179Z',
@@ -273,7 +273,7 @@ class InterfaceDiagram:
         The combination of an application and the inbound and outbound protocols 
         results in a instance
         """
-        logging.info(f'create_structure_app_and_protocols()')
+        logging.info('create_structure_app_and_protocols()')
 
         for row, interface in enumerate(self.interfaces):
             self.y_protocol = self.y_protocol_start  + (PROTOCOL_HEIGHT + Y_OFFSET) * row
@@ -305,12 +305,17 @@ class InterfaceDiagram:
 
     def create_instancies_connections(self) -> None:
         """
-        After creates the applicatoin and protocols shape, this function creates the connections and the labels.
+        After creates the applicatoin and protocols shape, this function creates the 
+        connections and the labels.
+        
         The connections connect the shouce and target protocol for each interface
-        The labels are created above the connection and the ricefw url created down below to the connections arrows.
+        
+        The labels are created above the connection and the ricefw url created down 
+        below to the connections arrows.
+        
         the detail link generate a clickable link to an informed url.
         """
-        logging.info(f'create_instancies_connections()')
+        logging.info('create_instancies_connections()')
 
         for row, interface in enumerate(self.interfaces):
             self.y_protocol = self.y_protocol_start  + (PROTOCOL_HEIGHT + Y_OFFSET) * row
@@ -340,7 +345,7 @@ class InterfaceDiagram:
         """
         Create the whole structure of the xml file readable by draw.io
         """
-        logging.info(f'build_xml_file()')
+        logging.info('build_xml_file()')
 
         self.initialize_xml_structure()
         self.create_instancies()
@@ -352,7 +357,7 @@ class InterfaceDiagram:
         Build the XML file and generate a dinamical url to access the diagram
         :return: draw.io diagram exported in a url format
         """
-        logging.info(f'generate_diagram_url()')
+        logging.info('generate_diagram_url()')
 
         self.build_xml_file()
         data = ET.tostring(self.mxfile)
