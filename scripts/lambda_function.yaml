@@ -1,0 +1,59 @@
+Resources:
+  InterfaceDiagramLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: InterfaceDiagram
+      Handler: src/main/lambda_function.lambda_handler
+      Role: arn:aws:iam::543421991131:role/lambda_role  # Replace with your IAM role ARN
+      Code:
+        S3Bucket: interface-diagram  # Create this bucket in S3
+        S3Key: function.zip
+      Runtime: python3.10
+      Timeout: 15
+
+  InterfaceDiagramAPI:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: InterfaceDiagramAPI
+  
+  InterfaceDiagramDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: InterfaceDiagramMethod
+    Properties:
+      RestApiId: !Ref InterfaceDiagramAPI
+  
+  InterfaceDiagramMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: POST
+      ResourceId: !GetAtt 
+        - InterfaceDiagramAPI
+        - RootResourceId
+      RestApiId: !Ref InterfaceDiagramAPI
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub 
+          - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Arn}/invocations"
+          - Arn: !GetAtt InterfaceDiagramLambda.Arn
+      AuthorizationType: NONE
+  
+  InterfaceDiagramPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt InterfaceDiagramLambda.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${InterfaceDiagramAPI}/*/POST/"
+  InterfaceDiagramStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      StageName: Prod
+      Description: Production Stage
+      RestApiId: !Ref InterfaceDiagramAPI
+      DeploymentId: !Ref InterfaceDiagramDeployment
+
+Outputs:
+  ApiUrl:
+    Description: The URL of the API Gateway for this stack
+    Value: !Sub "https://${InterfaceDiagramAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod"
