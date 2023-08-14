@@ -1,0 +1,44 @@
+code_id,direction,app_type,app_name,format,connection_app,connection_detail,interface_id,interface_url
+IFS_CS_052 - 3PL - Return order - 3PL - ALE Idoc - S4 Hana - ALE Idoc,Inbound,sap_app,S4 Hana,ALE Idoc,,,,
+IFS_CS_052 - 3PL - Return order - 3PL - ALE Idoc - S4 Hana - ALE Idoc,Inbound,middleware,iShift Tibco,,S4 Hana,Return order,IFS_CS_052,https://sanofi.sharepoint.com/sites/S4COEBACKOFFICE/Lists/Tech%20Assessment%20Repository/AllItems.aspx?useFiltersInViewXml=1&FilterField1=field_4&FilterValue1=IFS_CS_052
+IFS_CS_052 - 3PL - Return order - 3PL - ALE Idoc - S4 Hana - ALE Idoc,Inbound,gateway,FFT External,,iShift Tibco,,,
+IFS_CS_052 - 3PL - Return order - 3PL - ALE Idoc - S4 Hana - ALE Idoc,Inbound,connected_app,3PL,ALE Idoc,FFT External,,,
+IFS_CS_052 - 3PL - Return order - 3PL - No Changes - S4 Hana - No Changes,Inbound,sap_app,S4 Hana,No Changes,,,,
+IFS_CS_052 - 3PL - Return order - 3PL - No Changes - S4 Hana - No Changes,Inbound,middleware,iShift Tibco,,S4 Hana,Return order,IFS_CS_052,https://sanofi.sharepoint.com/sites/S4COEBACKOFFICE/Lists/Tech%20Assessment%20Repository/AllItems.aspx?useFiltersInViewXml=1&FilterField1=field_4&FilterValue1=IFS_CS_052
+IFS_CS_052 - 3PL - Return order - 3PL - No Changes - S4 Hana - No Changes,Inbound,connected_app,3PL,No Changes,iShift Tibco,,,
+IFS_SCI_001-002-004-005-006-067 - 3PL - Stock movements - 3PL - File - S4 Hana - ALE Idoc,Inbound,sap_app,S4 Hana,ALE Idoc,,,,
+IFS_SCI_001-002-004-005-006-067 - 3PL - Stock movements - 3PL - File - S4 Hana - ALE Idoc,Inbound,middleware,iShift Tibco,,S4 Hana,Stock movements,IFS_SCI_001-002-004-005-006-067,https://sanofi.sharepoint.com/sites/S4COEBACKOFFICE/Lists/Tech%20Assessment%20Repository/AllItems.aspx?useFiltersInViewXml=1&FilterField1=field_4&FilterValue1=IFS_SCI_001-002-004-005-006-067
+IFS_SCI_001-002-004-005-006-067 - 3PL - Stock movements - 3PL - File - S4 Hana - ALE Idoc,Inbound,gateway,FFT External,,iShift Tibco,,,
+IFS_SCI_001-002-004-005-006-067 - 3PL - Stock movements - 3PL - File - S4 Hana - ALE Idoc,Inbound,connected_app,3PL,File,FFT External,,,
+IFS_SCI_010 - 3PL - Inbound Delivery - S4 Hana - No Changes - 3PL - No Changes,Outbound,sap_app,S4 Hana,No Changes,,,,
+IFS_SCI_010 - 3PL - Inbound Delivery - S4 Hana - No Changes - 3PL - No Changes,Outbound,middleware,iShift Tibco,,S4 Hana,Inbound Delivery,IFS_SCI_010,https://sanofi.sharepoint.com/sites/S4COEBACKOFFICE/Lists/Tech%20Assessment%20Repository/AllItems.aspx?useFiltersInViewXml=1&FilterField1=field_4&FilterValue1=IFS_SCI_010
+IFS_SCI_010 - 3PL - Inbound Delivery - S4 Hana - No Changes - 3PL - No Changes,Outbound,connected_app,3PL,No Changes,iShift Tibco,,,
+IFS_SCI_014-016-017-077-079 - 3PL - Goods Receipt - 3PL - File - S4 Hana - ALE Idoc,Inbound,sap_app,S4 Hana,ALE Idoc,,,,
+IFS_SCI_014-016-017-077-079 - 3PL - Goods Receipt - 3PL - File - S4 Hana - ALE Idoc,Inbound,middleware,iShift Tibco,,S4 Hana,Goods Receipt,IFS_SCI_014-016-017-077-079,https://sanofi.sharepoint.com/sites/S4COEBACKOFFICE/Lists/Tech%20Assessment%20Repository/AllItems.aspx?useFiltersInViewXml=1&FilterField1=field_4&FilterValue1=IFS_SCI_014-016-017-077-079
+IFS_SCI_014-016-017-077-079 - 3PL - Goods Receipt - 3PL - File - S4 Hana - ALE Idoc,Inbound,gateway,FFT External,,iShift Tibco,,,
+IFS_SCI_014-016-017-077-079 - 3PL - Goods Receipt - 3PL - File - S4 Hana - ALE Idoc,Inbound,connected_app,3PL,File,FFT External,,,
+IFS_SCI_020 - 3PL - Outbound Delivery - S4 Hana - ALE Idoc - 3PL - Idoc XML,Outbound,sap_app,S4 Hana,ALE Idoc,,,,
+IFS_SCI_020 - 3PL - Outbound Delivery - S4 Hana - ALE Idoc - 3PL - Idoc XML,Outbound,middleware,iShift Tibco,,S4 Hana,Outbound Delivery,IFS_SCI_020,https://sanofi.sharepoint.com/sites/S4COEBACKOFFICE/Lists/Tech%20Assessment%20Repository/AllItems.aspx?useFiltersInViewXml=1&FilterField1=field_4&FilterValue1=IFS_SCI_020
+IFS_SCI_020 - 3PL - Outbound Delivery - S4 Hana - ALE Idoc - 3PL - Idoc XML,Outbound,gateway,FFT External,,iShift Tibco,,,
+IFS_SCI_020 - 3PL - Outbound Delivery - S4 Hana - ALE Idoc - 3PL - Idoc XML,Outbound,connected_app,3PL,Idoc XML,FFT External,,,
+IFS_SCI_020_022_023_024 - 3PL - Outbound delivery - 3PL - No Changes -  - No Changes,Outbound,sap_app,3PL,No Changes,,,,
+IFS_SCI_020_022_023_024 - 3PL - Outbound delivery - 3PL - No Changes -  - No Changes,Outbound,connected_app,3PL,No Changes,3PL,Outbound delivery,IFS_SCI_020_022_023_024,https://sanofi.sharepoint.com/sites/S4COEBACKOFFICE/Lists/Tech%20Assessment%20Repository/AllItems.aspx?useFiltersInViewXml=1&FilterField1=field_4&FilterValue1=IFS_SCI_020_022_023_024
+IFS_SCI_025 - 3PL - Outbound Delivery  - 3PL - No Changes - S4 Hana - No Changes,Inbound,sap_app,S4 Hana,No Changes,,,,
+IFS_SCI_025 - 3PL - Outbound Delivery  - 3PL - No Changes - S4 Hana - No Changes,Inbound,middleware,iShift Tibco,,S4 Hana,Outbound Delivery ,IFS_SCI_025,https://sanofi.sharepoint.com/sites/S4COEBACKOFFICE/Lists/Tech%20Assessment%20Repository/AllItems.aspx?useFiltersInViewXml=1&FilterField1=field_4&FilterValue1=IFS_SCI_025
+IFS_SCI_025 - 3PL - Outbound Delivery  - 3PL - No Changes - S4 Hana - No Changes,Inbound,gateway,FFT External,,iShift Tibco,,,
+IFS_SCI_025 - 3PL - Outbound Delivery  - 3PL - No Changes - S4 Hana - No Changes,Inbound,connected_app,3PL,No Changes,FFT External,,,
+IFS_SCI_025 - 3PL - Outbound Delivery - 3PL - No Changes - S4 Hana - No Changes,Inbound,sap_app,S4 Hana,No Changes,,,,
+IFS_SCI_025 - 3PL - Outbound Delivery - 3PL - No Changes - S4 Hana - No Changes,Inbound,middleware,iShift Tibco,,S4 Hana,Outbound Delivery,IFS_SCI_025,https://sanofi.sharepoint.com/sites/S4COEBACKOFFICE/Lists/Tech%20Assessment%20Repository/AllItems.aspx?useFiltersInViewXml=1&FilterField1=field_4&FilterValue1=IFS_SCI_025
+IFS_SCI_025 - 3PL - Outbound Delivery - 3PL - No Changes - S4 Hana - No Changes,Inbound,gateway,FFT External,,iShift Tibco,,,
+IFS_SCI_025 - 3PL - Outbound Delivery - 3PL - No Changes - S4 Hana - No Changes,Inbound,connected_app,3PL,No Changes,FFT External,,,
+IFS_SCI_025-026-028-029-030-071 - 3PL - Outbound Delivery - 3PL - Idoc XML - S4 Hana - ALE Idoc,Inbound,sap_app,S4 Hana,ALE Idoc,,,,
+IFS_SCI_025-026-028-029-030-071 - 3PL - Outbound Delivery - 3PL - Idoc XML - S4 Hana - ALE Idoc,Inbound,middleware,iShift Tibco,,S4 Hana,Outbound Delivery,IFS_SCI_025-026-028-029-030-071,https://sanofi.sharepoint.com/sites/S4COEBACKOFFICE/Lists/Tech%20Assessment%20Repository/AllItems.aspx?useFiltersInViewXml=1&FilterField1=field_4&FilterValue1=IFS_SCI_025-026-028-029-030-071
+IFS_SCI_025-026-028-029-030-071 - 3PL - Outbound Delivery - 3PL - Idoc XML - S4 Hana - ALE Idoc,Inbound,gateway,FFT External,,iShift Tibco,,,
+IFS_SCI_025-026-028-029-030-071 - 3PL - Outbound Delivery - 3PL - Idoc XML - S4 Hana - ALE Idoc,Inbound,connected_app,3PL,Idoc XML,FFT External,,,
+IFS_SCI_037 - 3PL - Stock Picture - 3PL - No Changes - S4 Hana - No Changes,Inbound,sap_app,S4 Hana,No Changes,,,,
+IFS_SCI_037 - 3PL - Stock Picture - 3PL - No Changes - S4 Hana - No Changes,Inbound,middleware,iShift Tibco,,S4 Hana,Stock Picture,IFS_SCI_037,https://sanofi.sharepoint.com/sites/S4COEBACKOFFICE/Lists/Tech%20Assessment%20Repository/AllItems.aspx?useFiltersInViewXml=1&FilterField1=field_4&FilterValue1=IFS_SCI_037
+IFS_SCI_037 - 3PL - Stock Picture - 3PL - No Changes - S4 Hana - No Changes,Inbound,connected_app,3PL,No Changes,iShift Tibco,,,
+IFS_SCI_075-074 - 3PL - Proforma Invoice - S4 Hana - No Changes - 3PL - No Changes,Outbound,sap_app,S4 Hana,No Changes,,,,
+IFS_SCI_075-074 - 3PL - Proforma Invoice - S4 Hana - No Changes - 3PL - No Changes,Outbound,middleware,iShift Tibco,,S4 Hana,Proforma Invoice,IFS_SCI_075-074,https://sanofi.sharepoint.com/sites/S4COEBACKOFFICE/Lists/Tech%20Assessment%20Repository/AllItems.aspx?useFiltersInViewXml=1&FilterField1=field_4&FilterValue1=IFS_SCI_075-074
+IFS_SCI_075-074 - 3PL - Proforma Invoice - S4 Hana - No Changes - 3PL - No Changes,Outbound,gateway,FFT External,,iShift Tibco,,,
+IFS_SCI_075-074 - 3PL - Proforma Invoice - S4 Hana - No Changes - 3PL - No Changes,Outbound,connected_app,3PL,No Changes,FFT External,,,
