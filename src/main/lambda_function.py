@@ -1,4 +1,4 @@
-from src.main.InterfaceDiagram import InterfaceDiagram
+from src.main.interface_diagram import InterfaceDiagram
 from src.main.JSONParser import JSONParser
 from src.main.EncodingHelper import EncodingHelper
 
