@@ -2,7 +2,7 @@ import sys
 sys.path.append('.')
 
 from src.main.interface_diagram import InterfaceDiagram
-from src.main.JSONParser import JSONParser
+from src.main.json_parser import JSONParser
 from src.main.EncodingHelper import EncodingHelper
 
 

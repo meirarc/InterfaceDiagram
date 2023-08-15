@@ -2,19 +2,19 @@ import sys
 sys.path.append('.')
 
 from src.main.interface_diagram import InterfaceDiagram
-from src.main.JSONParser import JSONParser
+from src.main.json_parser import JSONParser
 from src.main.EncodingHelper import EncodingHelper
 
 import logging
-import json
 
 #file_name = 'src/tests/test_data/interfaces.json'
 file_name = 'diagram/in/backup/app_1CRM.json'
 
-with open(file_name, 'r') as f:
-    data = json.load(f)  # Load JSON data from a file
-
 parser = JSONParser()
+
+with open(file_name, 'r') as f:
+    data = parser.parse(f.read())
+
 interfaces = parser.json_to_object(data)
 
 

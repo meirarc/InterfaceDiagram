@@ -1,4 +1,4 @@
-from src.main.JSONParser import JSONParser
+from src.main.json_parser import JSONParser
 
 import os
 import json
