@@ -43,7 +43,7 @@ class TestInterfaceDiagram(unittest.TestCase):
         diagram = InterfaceDiagram(self.interfaces, EncodingHelper())
         
         initial_app_lists = diagram.app_lists.copy()
-        after_app_list = diagram.populate_app_lists(diagram.interfaces)
+        after_app_list = diagram.populate_app_lists(diagram.config['interfaces'])
 
         self.assertEqual(initial_app_lists, after_app_list)
 
@@ -67,21 +67,21 @@ class TestInterfaceDiagram(unittest.TestCase):
     def test_initialize_xml_structure(self):
         diagram = InterfaceDiagram(self.interfaces, EncodingHelper())
         
-        initial_mxfile = diagram.mxfile
-        initial_root = diagram.root
+        initial_mxfile = diagram.xml_content['mxfile']
+        initial_root = diagram.xml_content['root']
         mock_string_mxfile = f'<mxfile host="app.diagrams.net" modified="2023-07-25T12:42:08.179Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.82" etag="70Szxm5LCrq_Rskbk8Uq" version="21.6.5" type="device"><diagram name="Page-1" id="xI1n7PUDQ-lDr-DjmP3Y"><mxGraphModel dx="1182" dy="916" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="{diagram.size_parameters["page_width"]}" pageHeight="{diagram.size_parameters["app_height"]}" math="0" shadow="0"><root><mxCell id="0" /><mxCell id="1" parent="0" /></root></mxGraphModel></diagram></mxfile>'
         
         
         diagram.initialize_xml_structure()
 
-        mxfile_string = ET.tostring(diagram.mxfile, encoding='utf-8').decode('utf-8')
+        mxfile_string = ET.tostring(diagram.xml_content['mxfile'], encoding='utf-8').decode('utf-8')
         self.assertEqual(mxfile_string, mock_string_mxfile)
 
-        self.assertIsNotNone(diagram.mxfile)
-        self.assertIsNotNone(diagram.root)
+        self.assertIsNotNone(diagram.xml_content['mxfile'])
+        self.assertIsNotNone(diagram.xml_content['root'])
         
-        self.assertNotEqual(initial_mxfile, diagram.mxfile)
-        self.assertNotEqual(initial_root, diagram.root)
+        self.assertNotEqual(initial_mxfile, diagram.xml_content['mxfile'])
+        self.assertNotEqual(initial_root, diagram.xml_content['root'])
 
 
     def test_generate_diagram_url(self):

@@ -44,25 +44,31 @@ class InterfaceDiagram:
         logging.basicConfig(level=log_level)
         logging.info('Init Class InterfaceDiagram')
 
-        self.interfaces = interfaces  # Input File
-        self.list_of_ids = []         # Control of ids
-        self.encoder = encoder        # Encoder to write the out file
+        # Configuration parameters
+        self.config = {
+            'interfaces': interfaces,  # Input File
+            'encoder': encoder         # Encoder to write the out file
+        }
+
+        self.list_of_ids = []  # Control of ids
 
         # Sequencing of application
-        self.app_lists = self.populate_app_lists(self.interfaces)
+        self.app_lists = self.populate_app_lists(self.config['interfaces'])
         self.app_order, self.app_count = self.create_app_order(self.app_lists)
 
         # Variant size parameters as a dictionary
         self.size_parameters = {
             'y_protocol': 0,
             'y_protocol_start': 40,
-            'app_height': 80 + (PROTOCOL_HEIGHT + Y_OFFSET) * (len(self.interfaces) - 1),
+            'app_height': 80 + (PROTOCOL_HEIGHT + Y_OFFSET) * (len(self.config['interfaces']) - 1),
             'page_width': ((self.app_count * 2) - 1) * APP_WIDTH
         }
 
         # Public xml content
-        self.mxfile = None
-        self.root = None
+        self.xml_content = {
+            'mxfile': None,
+            'root': None
+        }
 
 
     def populate_app_lists(self, interfaces: List[Dict]) -> Dict[str, List[str]]:
@@ -85,9 +91,10 @@ class InterfaceDiagram:
 
         for interface in interfaces:
             for app in interface['apps']:
-                for app_type in app_lists.keys():
-                    if app_type[:-1] in app and app[app_type[:-1]] not in app_lists[app_type]:
-                        app_lists[app_type].append(app[app_type[:-1]])
+                for app_type, app_names in app_lists.items():
+                    if app_type[:-1] in app and app[app_type[:-1]] not in app_names:
+                        app_names.append(app[app_type[:-1]])
+
         return app_lists
 
 
@@ -121,7 +128,7 @@ class InterfaceDiagram:
         """
         logging.info('initialize_xml_structure()')
 
-        self.mxfile = ET.Element('mxfile', {'host': 'app.diagrams.net',
+        self.xml_content['mxfile'] = ET.Element('mxfile', {'host': 'app.diagrams.net',
                                     'modified': '2023-07-25T12:42:08.179Z',
                                     'agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
                                         'AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -129,21 +136,24 @@ class InterfaceDiagram:
                                     'etag': '70Szxm5LCrq_Rskbk8Uq', 'version': '21.6.5',
                                     'type': 'device'})
 
-        diagram = ET.SubElement(self.mxfile, 'diagram',
+        diagram = ET.SubElement(self.xml_content['mxfile'], 'diagram',
                                 {'name': 'Page-1', 'id': 'xI1n7PUDQ-lDr-DjmP3Y'})
 
+        page_width =  f'{self.size_parameters["page_width"]}'
+        page_height = f'{self.size_parameters["app_height"]}'
+
         mx_graph_model = ET.SubElement(diagram, 'mxGraphModel', {'dx': '1182', 'dy': '916',
-                                                                 'grid': '1', 'gridSize': '10', 
-                                                                 'guides': '1', 'tooltips': '1', 
-                                                                 'connect': '1', 'arrows': '1', 
-                                                                 'fold': '1', 'page': '1', 
-                                                                 'pageScale': '1', 
-                                                                 'pageWidth': f'{self.size_parameters["page_width"]}',
-                                                                 'pageHeight': f'{self.size_parameters["app_height"]}',
-                                                                 'math': '0', 'shadow': '0'})
-        self.root = ET.SubElement(mx_graph_model, 'root')
-        ET.SubElement(self.root, 'mxCell', {'id': '0'})
-        ET.SubElement(self.root, 'mxCell', {'id': '1', 'parent': '0'})
+                                                        'grid': '1', 'gridSize': '10', 
+                                                        'guides': '1', 'tooltips': '1', 
+                                                        'connect': '1', 'arrows': '1', 'fold': '1',
+                                                        'page': '1', 'pageScale': '1', 
+                                                        'pageWidth': page_width,
+                                                        'pageHeight': page_height, 
+                                                        'math': '0', 'shadow': '0'})
+
+        self.xml_content['root'] = ET.SubElement(mx_graph_model, 'root')
+        ET.SubElement(self.xml_content['root'], 'mxCell', {'id': '0'})
+        ET.SubElement(self.xml_content['root'], 'mxCell', {'id': '1', 'parent': '0'})
 
 
     def create_app(self, app_name: str, fill_color: str, stroke_color: str) -> None:
@@ -172,7 +182,7 @@ class InterfaceDiagram:
                      f'strokeColor={stroke_color};verticalAlign=top;')
 
             mx_cell = ET.SubElement(
-                self.root,
+                self.xml_content['root'],
                 'mxCell',
                 {
                     'id': object_id,
@@ -222,7 +232,7 @@ class InterfaceDiagram:
         logging.info('create_protocol(%s)',protocol_config)
 
         if app_name not in self.app_order:
-            logging.error(f"App name {app_name} is not in the app order.")
+            logging.error('App name %s is not in the app order.', app_name)
             return
 
         object_id = f'{direction}_{app_name}_{row}'
@@ -234,7 +244,7 @@ class InterfaceDiagram:
             style = ('shape=delay;whiteSpace=wrap;html=1;fillColor=#eeeeee;'
                      'strokeColor=#36393d;rotation=0;fontSize=10;')
 
-            mx_cell = ET.SubElement(self.root, 'mxCell', {
+            mx_cell = ET.SubElement(self.xml_content['root'], 'mxCell', {
                 'id': object_id, 
                 'value': app_format, 
                 'style': style, 
@@ -296,7 +306,7 @@ class InterfaceDiagram:
             }
 
             # Create an 'mxCell' XML element for the connections
-            mx_cell = ET.SubElement(self.root, 'mxCell', mx_cell_attrs)
+            mx_cell = ET.SubElement(self.xml_content['root'], 'mxCell', mx_cell_attrs)
 
             # Attributes for the 'mxGeometry' XML element
             mx_geometry_attrs = {
@@ -343,7 +353,7 @@ class InterfaceDiagram:
                 'vertex': '1'
             }
 
-            mx_cell = ET.SubElement(self.root, 'mxCell', mx_cell_attrs)
+            mx_cell = ET.SubElement(self.xml_content['root'], 'mxCell', mx_cell_attrs)
 
             # Create an 'mxGeometry' XML element for the connections
             mx_geometry_attrs = {
@@ -395,7 +405,7 @@ class InterfaceDiagram:
                 'parent': '1'
             }
 
-            mx_cell = ET.SubElement(self.root, 'mxCell', mx_cell_attrs)
+            mx_cell = ET.SubElement(self.xml_content['root'], 'mxCell', mx_cell_attrs)
 
             # Create an 'mxGeometry' XML element for the connections
             mx_geometry_attrs = {
@@ -422,7 +432,7 @@ class InterfaceDiagram:
         """
         logging.info('create_structure_app_and_protocols()')
 
-        for row, interface in enumerate(self.interfaces):
+        for row, interface in enumerate(self.config['interfaces']):
             self.size_parameters["y_protocol"] = (self.size_parameters["y_protocol_start"]  +
                                                (PROTOCOL_HEIGHT + Y_OFFSET) * row)
 
@@ -520,44 +530,48 @@ class InterfaceDiagram:
         """
         logging.info('create_instancies_connections()')
 
-        for row, interface in enumerate(self.interfaces):
+        for row, interface in enumerate(self.config['interfaces']):
             self.size_parameters["y_protocol"] = (self.size_parameters["y_protocol_start"]  +
                                                (PROTOCOL_HEIGHT + Y_OFFSET) * row)
 
             for _, data in enumerate(interface['apps']):
-                if 'connection' in data:
+                if 'connection' not in data:
+                    continue
 
-                    for app_type in APP_TYPES:
-                        if app_type in data:
+                app = data['connection']["app"]
 
-                            app = data['connection']["app"]
-                            app_data = data[app_type]
-                            direction = interface["direction"]
-                            self.create_connection(app, app_data, row, direction)
+                for app_type in APP_TYPES:
+                    if app_type not in data:
+                        continue
 
-                            if 'detail' in data['connection']:
-                                detail = data['connection']["detail"]
+                    app_data = data[app_type]
+                    direction = interface["direction"]
 
-                                self.create_detail({
-                                    'source': app,
-                                    'target': app_data,
-                                    'row': row,
-                                    'text': detail,
-                                    'direction': direction
-                                })
+                    self.create_connection(app, app_data, row, direction)
 
-                            if 'interface' in data['connection']:
-                                interface_id = data['connection']["interface"]["id"]
-                                interface_url = data['connection']["interface"]["url"]
+                    detail = data['connection'].get("detail")
+                    if detail:
+                        self.create_detail({
+                            'source': app,
+                            'target': app_data,
+                            'row': row,
+                            'text': detail,
+                            'direction': direction
+                        })
 
-                                self.create_detail_links({
-                                    'source': app,
-                                    'target': app_data,
-                                    'row': row,
-                                    'text': interface_id,
-                                    'url': interface_url,
-                                    'direction': direction
-                                })
+                    interface_info = data['connection'].get("interface")
+                    if interface_info:
+                        interface_id = interface_info["id"]
+                        interface_url = interface_info["url"]
+
+                        self.create_detail_links({
+                            'source': app,
+                            'target': app_data,
+                            'row': row,
+                            'text': interface_id,
+                            'url': interface_url,
+                            'direction': direction
+                        })
 
 
     def build_xml_file(self) -> None:
@@ -579,7 +593,7 @@ class InterfaceDiagram:
         logging.info('generate_diagram_url()')
 
         self.build_xml_file()
-        data = ET.tostring(self.mxfile)
-        data = self.encoder.encode_diagram_data(data)
+        data = ET.tostring(self.xml_content['mxfile'])
+        data = self.config['encoder'].encode_diagram_data(data)
         return 'https://viewer.diagrams.net/?#R' + data
     
