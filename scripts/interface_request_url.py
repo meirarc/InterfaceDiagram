@@ -14,7 +14,6 @@ output_dir = './diagram/out'
 backup_dir = './diagram/in/backup'
 error_dir = './diagram/in/error'
 
-
 # Define the directory path and the API endpoint
 api_endpoint = 'https://gh49irsqq9.execute-api.us-east-1.amazonaws.com/Prod'
 
