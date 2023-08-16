@@ -3,7 +3,7 @@ Lamda Function: InterdaceDiagram
 """
 from src.main.interface_diagram import InterfaceDiagram
 from src.main.json_parser import JSONParser
-from src.main.EncodingHelper import EncodingHelper
+from src.main.encoding_helper import EncodingHelper
 
 def lambda_handler(event, _):
     """

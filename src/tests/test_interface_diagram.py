@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 
 from src.main.interface_diagram import InterfaceDiagram
 from src.main.json_parser import JSONParser
-from src.main.EncodingHelper import EncodingHelper
+from src.main.encoding_helper import EncodingHelper
 
 class TestInterfaceDiagram(unittest.TestCase):
     """
