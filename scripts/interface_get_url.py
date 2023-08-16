@@ -5,7 +5,6 @@ from src.main.interface_diagram import InterfaceDiagram
 from src.main.json_parser import JSONParser
 from src.main.encoding_helper import EncodingHelper
 
-
 import json
 import os
 import pandas as pd

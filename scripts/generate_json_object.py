@@ -11,7 +11,7 @@ JSON_FILE = 'src/tests/test_data/interfaces.json'
 # Read the CSV file and convert to a JSON object
 with open(CSV_FILE, mode='r', encoding='utf-8') as csv_file:
     reader = csv.DictReader(csv_file)
-    data = [row for row in reader]
+    data = list(reader)
 
 json_data = json.dumps(data, indent=4)
 

@@ -1,3 +1,7 @@
+"""
+This module zip the main files in the function.zip
+The file need to be upload to a S3 to create the lambda function
+"""
 import zipfile
 
 with zipfile.ZipFile('./scripts/function.zip', 'a') as zipf:
