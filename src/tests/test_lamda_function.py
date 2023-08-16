@@ -1,7 +1,6 @@
 """
 This module contains tests for the Lambda function.
 """
-
 import json
 import unittest
 import requests

@@ -110,6 +110,8 @@ class TestInterfaceDiagram(unittest.TestCase):
         diagram = InterfaceDiagram(self.interfaces, EncodingHelper())
         url = diagram.generate_diagram_url()
 
+        print(url)
+
         # Perform the GET request
         response = requests.get(url, verify=False, timeout=5)
 
