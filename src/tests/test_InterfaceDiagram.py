@@ -111,7 +111,7 @@ class TestInterfaceDiagram(unittest.TestCase):
         url = diagram.generate_diagram_url()
 
         # Perform the GET request
-        response = requests.get(url)
+        response = requests.get(url, verify=False, timeout=5)
 
         # Verify the status code
         self.assertEqual(response.status_code, 200)
