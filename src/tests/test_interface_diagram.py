@@ -24,8 +24,8 @@ class TestInterfaceDiagram(unittest.TestCase):
         file_name = 'src/tests/test_data/interfaces.json'
         parser = JSONParser()
 
-        with open(file_name, 'r') as f:
-            data = parser.parse(f.read())
+        with open(file_name, 'r', encoding='utf-8') as file_content:
+            data = parser.parse(file_content.read())
 
         self.interfaces = parser.json_to_object(data)
 
@@ -35,7 +35,6 @@ class TestInterfaceDiagram(unittest.TestCase):
         This method will run after each test method. 
         You can use it to clean up any resources if needed.
         """
-
 
 
     def test_populate_app_lists(self):
@@ -65,7 +64,7 @@ class TestInterfaceDiagram(unittest.TestCase):
         app_order, app_count = diagram.create_app_order(app_lists)
 
         diagram.create_app_order(diagram.app_lists)
-        
+
         self.assertEqual(initial_app_order, app_order)
         self.assertEqual(initial_app_count, app_count)
 

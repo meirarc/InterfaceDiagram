@@ -14,13 +14,15 @@ class EncodingHelper:
 
     def js_btoa(self, data):
         """
-        run similar funciton of JS BTOA in Javascrip
+        This method simulates the btoa function in JavaScript.
+        It takes a binary data argument and returns a base64-encoded string of data.
         """
         return base64.b64encode(data)
 
     def pako_deflate_raw(self, data):
         """
-        run a file compression for zlib
+        This method compress data using zlib (with specific parameters).
+        It takes binary data and returns compressed binary data.
         """
         compress = zlib.compressobj(zlib.Z_DEFAULT_COMPRESSION, zlib.DEFLATED, -15, memLevel=8,
                                     strategy=zlib.Z_DEFAULT_STRATEGY)
@@ -31,7 +33,9 @@ class EncodingHelper:
 
     def encode_diagram_data(self, data):
         """
-        encoding the parameter data
+        This method applies a series of encoding steps to data, which is expected to be a string.
+        It URL-encodes data, compresses it using pako_deflate_raw, base64-encodes it using js_btoa,
+        and then URL-encodes the result again.
         """
         data = quote(data, safe='~()*!.\'')
         data = data.encode()
