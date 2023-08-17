@@ -128,13 +128,14 @@ class InterfaceDiagram:
         """
         logging.info('initialize_xml_structure()')
 
-        self.xml_content['mxfile'] = ET.Element('mxfile', {'host': 'app.diagrams.net',
-                                                           'modified': '2023-07-25T12:42:08.179Z',
-                                                           'agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-                                                                     'AppleWebKit/537.36 (KHTML, like Gecko) '
-                                                                     'Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.82'),
-                                                           'etag': '70Szxm5LCrq_Rskbk8Uq', 'version': '21.6.5',
-                                                           'type': 'device'})
+        mxfile_parameters = {'host': 'app.diagrams.net', 'modified': '2023-07-25T12:42:08.179Z',
+                             'agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                                       'AppleWebKit/537.36 (KHTML, like Gecko) '
+                                       'Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.82'),
+                             'etag': '70Szxm5LCrq_Rskbk8Uq', 'version': '21.6.5',
+                             'type': 'device'}
+
+        self.xml_content['mxfile'] = ET.Element('mxfile', mxfile_parameters)
 
         diagram = ET.SubElement(self.xml_content['mxfile'], 'diagram',
                                 {'name': 'Page-1', 'id': 'xI1n7PUDQ-lDr-DjmP3Y'})
@@ -145,7 +146,8 @@ class InterfaceDiagram:
         mx_graph_model = ET.SubElement(diagram, 'mxGraphModel', {'dx': '1182', 'dy': '916',
                                                                  'grid': '1', 'gridSize': '10',
                                                                  'guides': '1', 'tooltips': '1',
-                                                                 'connect': '1', 'arrows': '1', 'fold': '1',
+                                                                 'connect': '1', 'arrows': '1',
+                                                                 'fold': '1',
                                                                  'page': '1', 'pageScale': '1',
                                                                  'pageWidth': page_width,
                                                                  'pageHeight': page_height,
