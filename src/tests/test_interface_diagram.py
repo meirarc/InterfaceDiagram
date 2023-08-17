@@ -11,10 +11,12 @@ from src.main.interface_diagram import InterfaceDiagram
 from src.main.json_parser import JSONParser
 from src.main.encoding_helper import EncodingHelper
 
+
 class TestInterfaceDiagram(unittest.TestCase):
     """
     TestInterfaceDiagram Class to test to functions of the InterfaceDiagram
     """
+
     def setUp(self):
         """
         This method will run before each test method. 
@@ -29,13 +31,11 @@ class TestInterfaceDiagram(unittest.TestCase):
 
         self.interfaces = parser.json_to_object(data)
 
-
     def tearDown(self):
         """
         This method will run after each test method. 
         You can use it to clean up any resources if needed.
         """
-
 
     def test_populate_app_lists(self):
         """
@@ -45,10 +45,10 @@ class TestInterfaceDiagram(unittest.TestCase):
         diagram = InterfaceDiagram(self.interfaces, EncodingHelper())
 
         initial_app_lists = diagram.app_lists.copy()
-        after_app_list = diagram.populate_app_lists(diagram.config['interfaces'])
+        after_app_list = diagram.populate_app_lists(
+            diagram.config['interfaces'])
 
         self.assertEqual(initial_app_lists, after_app_list)
-
 
     def test_create_app_order(self):
         """
@@ -67,7 +67,6 @@ class TestInterfaceDiagram(unittest.TestCase):
 
         self.assertEqual(initial_app_order, app_order)
         self.assertEqual(initial_app_count, app_count)
-
 
     def test_initialize_xml_structure(self):
         """
@@ -92,7 +91,8 @@ class TestInterfaceDiagram(unittest.TestCase):
 
         diagram.initialize_xml_structure()
 
-        mxfile_string = ET.tostring(diagram.xml_content['mxfile'], encoding='utf-8').decode('utf-8')
+        mxfile_string = ET.tostring(
+            diagram.xml_content['mxfile'], encoding='utf-8').decode('utf-8')
         self.assertEqual(mxfile_string, mock_string_mxfile)
 
         self.assertIsNotNone(diagram.xml_content['mxfile'])
@@ -100,7 +100,6 @@ class TestInterfaceDiagram(unittest.TestCase):
 
         self.assertNotEqual(initial_mxfile, diagram.xml_content['mxfile'])
         self.assertNotEqual(initial_root, diagram.xml_content['root'])
-
 
     def test_generate_diagram_url(self):
         """
