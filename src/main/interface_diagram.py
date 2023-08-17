@@ -8,7 +8,8 @@ from typing import List, Dict, Tuple
 
 from src.main.config import (
     # Constant fill colors
-    FIRST_FILL_COLOR,                # Main system (that drives the interface direction) color
+    # Main system (that drives the interface direction) color
+    FIRST_FILL_COLOR,
     MIDDLE_FILL_COLOR,               # Middlewares colors
     GATEWAY_FILL_COLOR,              # Gateway Colors
     OTHER_FILL_COLOR,                # Other Middleware colors
@@ -17,7 +18,8 @@ from src.main.config import (
     CONNECTION_IN_FILL_COLOR,        # Inbound Connection colors
 
     # Constant stroke colors
-    FIRST_STROKE_COLOR,              # Main system (that drives the interface direction) color
+    # Main system (that drives the interface direction) color
+    FIRST_STROKE_COLOR,
     MIDDLE_STROKE_COLOR,             # Middlewares colors
     GATEWAY_STROKE_COLOR,            # Gateway Colors
     OTHER_STROKE_COLOR,              # Other Middleware colors
@@ -40,6 +42,7 @@ class InterfaceDiagram:
     """
     Class to represent and generate an Interface Diagram.
     """
+
     def __init__(self, interfaces, encoder, log_level=logging.ERROR):
         logging.basicConfig(level=log_level)
         logging.info('Init Class InterfaceDiagram')
@@ -70,7 +73,6 @@ class InterfaceDiagram:
             'root': None
         }
 
-
     def populate_app_lists(self, interfaces: List[Dict]) -> Dict[str, List[str]]:
         """
         Populate the interfaces object in separated objects by types.
@@ -85,7 +87,7 @@ class InterfaceDiagram:
             'sap_apps': [],
             'middlewares': [],
             'gateways': [],
-            'other_middlewares':[],
+            'other_middlewares': [],
             'connected_apps': []
         }
 
@@ -96,7 +98,6 @@ class InterfaceDiagram:
                         app_names.append(app[app_type[:-1]])
 
         return app_lists
-
 
     def create_app_order(self, app_lists: Dict[str, List[str]]) -> Tuple[Dict[str, int], int]:
         """
@@ -119,7 +120,6 @@ class InterfaceDiagram:
         app_order = {app: i for i, app in enumerate(app_list)}
         return app_order, len(app_list)
 
-
     def initialize_xml_structure(self) -> None:
         """
         Create the initial elements of the XML file readable by draw.io
@@ -129,38 +129,38 @@ class InterfaceDiagram:
         logging.info('initialize_xml_structure()')
 
         self.xml_content['mxfile'] = ET.Element('mxfile', {'host': 'app.diagrams.net',
-                                    'modified': '2023-07-25T12:42:08.179Z',
-                                    'agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-                                        'AppleWebKit/537.36 (KHTML, like Gecko) '
-                                        'Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.82'),
-                                    'etag': '70Szxm5LCrq_Rskbk8Uq', 'version': '21.6.5',
-                                    'type': 'device'})
+                                                           'modified': '2023-07-25T12:42:08.179Z',
+                                                           'agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                                                                     'AppleWebKit/537.36 (KHTML, like Gecko) '
+                                                                     'Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.82'),
+                                                           'etag': '70Szxm5LCrq_Rskbk8Uq', 'version': '21.6.5',
+                                                           'type': 'device'})
 
         diagram = ET.SubElement(self.xml_content['mxfile'], 'diagram',
                                 {'name': 'Page-1', 'id': 'xI1n7PUDQ-lDr-DjmP3Y'})
 
-        page_width =  f'{self.size_parameters["page_width"]}'
+        page_width = f'{self.size_parameters["page_width"]}'
         page_height = f'{self.size_parameters["app_height"]}'
 
         mx_graph_model = ET.SubElement(diagram, 'mxGraphModel', {'dx': '1182', 'dy': '916',
-                                                        'grid': '1', 'gridSize': '10', 
-                                                        'guides': '1', 'tooltips': '1', 
-                                                        'connect': '1', 'arrows': '1', 'fold': '1',
-                                                        'page': '1', 'pageScale': '1', 
-                                                        'pageWidth': page_width,
-                                                        'pageHeight': page_height, 
-                                                        'math': '0', 'shadow': '0'})
+                                                                 'grid': '1', 'gridSize': '10',
+                                                                 'guides': '1', 'tooltips': '1',
+                                                                 'connect': '1', 'arrows': '1', 'fold': '1',
+                                                                 'page': '1', 'pageScale': '1',
+                                                                 'pageWidth': page_width,
+                                                                 'pageHeight': page_height,
+                                                                 'math': '0', 'shadow': '0'})
 
         self.xml_content['root'] = ET.SubElement(mx_graph_model, 'root')
         ET.SubElement(self.xml_content['root'], 'mxCell', {'id': '0'})
-        ET.SubElement(self.xml_content['root'], 'mxCell', {'id': '1', 'parent': '0'})
-
+        ET.SubElement(self.xml_content['root'], 'mxCell', {
+                      'id': '1', 'parent': '0'})
 
     def create_app(self, app_name: str, fill_color: str, stroke_color: str) -> None:
         """
         This method creates an application shape in the Draw.io diagram structure. 
         Each application shape is represented as an 'mxCell' XML element with specific attributes.
-        
+
         :param app_name: The name of the application.
         :param fill_color: The color used to fill the shape.
         :param stroke_color: The color used for the outline of the shape.
@@ -209,12 +209,11 @@ class InterfaceDiagram:
                 }
             )
 
-
     def create_protocol(self, protocol_config: dict) -> None:
         """
         This method creates a protocol shape in the Draw.io diagram structure. 
         Each application shape is represented as an 'mxCell' XML element with specific attributes.
-        
+
         :param protocol_config: A dictionary containing the configuration for the protocol.
             Expected keys are:
                 - 'app_name': The name of the application.
@@ -229,7 +228,7 @@ class InterfaceDiagram:
         app_format = protocol_config['format']
         position = protocol_config['position']
 
-        logging.info('create_protocol(%s)',protocol_config)
+        logging.info('create_protocol(%s)', protocol_config)
 
         if app_name not in self.app_order:
             logging.error('App name %s is not in the app order.', app_name)
@@ -245,33 +244,33 @@ class InterfaceDiagram:
                      'strokeColor=#36393d;rotation=0;fontSize=10;')
 
             mx_cell = ET.SubElement(self.xml_content['root'], 'mxCell', {
-                'id': object_id, 
-                'value': app_format, 
-                'style': style, 
-                'parent': '1', 
-                'vertex': '1' 
+                'id': object_id,
+                'value': app_format,
+                'style': style,
+                'parent': '1',
+                'vertex': '1'
             })
 
             ET.SubElement(mx_cell, 'mxGeometry', {
-                'x': f'{position + (APP_WIDTH * 2 * self.app_order[app_name])}', 
-                'y': f'{self.size_parameters["y_protocol"]}', 
-                'width': f'{PROTOCOL_WIDTH}', 
-                'height': f'{PROTOCOL_HEIGHT}', 
-                'as': 'geometry' 
+                'x': f'{position + (APP_WIDTH * 2 * self.app_order[app_name])}',
+                'y': f'{self.size_parameters["y_protocol"]}',
+                'width': f'{PROTOCOL_WIDTH}',
+                'height': f'{PROTOCOL_HEIGHT}',
+                'as': 'geometry'
             })
 
-
-    def create_connection(self, source:str, target:str, row:int, direction:str) -> None:
+    def create_connection(self, source: str, target: str, row: int, direction: str) -> None:
         """
         This method creates an connections in the Draw.io diagram structure. 
         Each application shape is represented as an 'mxCell' XML element with specific attributes.
-        
+
         :param source: The name of the source application
         :param target: The name of the target application
         :param row: The row to create the protocol
         :param direction: indicate an inbound or outbouind flow, reference from SAP system.
         """
-        logging.info('create_protocol(%s, %s, %s, %s)',source, target, row, direction)
+        logging.info('create_protocol(%s, %s, %s, %s)',
+                     source, target, row, direction)
 
         object_id = f'conn_{source}_{target}_{row}'
         # Ensure that each ID is unique
@@ -290,8 +289,8 @@ class InterfaceDiagram:
 
             # Styles for the 'mxCell' XML element
             style = (f'edgeStyle=orthogonalEdgeStyle;rounded=0;fillColor={fill_color};'
-                    f'strokeColor={stroke_color};orthogonalLoop=1;jettySize=auto;'
-                    'html=1;strokeWidth=3')
+                     f'strokeColor={stroke_color};orthogonalLoop=1;jettySize=auto;'
+                     'html=1;strokeWidth=3')
 
             # Attributes for the 'mxCell' XML element
             mx_cell_attrs = {
@@ -306,7 +305,8 @@ class InterfaceDiagram:
             }
 
             # Create an 'mxCell' XML element for the connections
-            mx_cell = ET.SubElement(self.xml_content['root'], 'mxCell', mx_cell_attrs)
+            mx_cell = ET.SubElement(
+                self.xml_content['root'], 'mxCell', mx_cell_attrs)
 
             # Attributes for the 'mxGeometry' XML element
             mx_geometry_attrs = {
@@ -317,12 +317,11 @@ class InterfaceDiagram:
             # Create an 'mxGeometry' XML element for the connections
             ET.SubElement(mx_cell, 'mxGeometry', mx_geometry_attrs)
 
-
     def create_detail(self, detail_params: dict) -> None:
         """
         This method creates a label in the Draw.io diagram structure. 
         Each label is represented as an 'mxCell' XML element with specific attributes.
-        
+
         :param detail_params: A dictionary containing the necessary parameters.
         """
         source = detail_params['source']
@@ -331,7 +330,8 @@ class InterfaceDiagram:
         text = detail_params['text']
         direction = detail_params['direction']
 
-        logging.info('create_detail(%s, %s, %d, %s, %s)', source, target, row, text, direction)
+        logging.info('create_detail(%s, %s, %d, %s, %s)',
+                     source, target, row, text, direction)
 
         object_id = f'detail_{source}_{target}_{row}'
 
@@ -353,7 +353,8 @@ class InterfaceDiagram:
                 'vertex': '1'
             }
 
-            mx_cell = ET.SubElement(self.xml_content['root'], 'mxCell', mx_cell_attrs)
+            mx_cell = ET.SubElement(
+                self.xml_content['root'], 'mxCell', mx_cell_attrs)
 
             # Create an 'mxGeometry' XML element for the connections
             mx_geometry_attrs = {
@@ -371,7 +372,7 @@ class InterfaceDiagram:
         This method creates a text shape with a URL link button to the connection in the 
         Draw.io diagram structure. Each application shape is represented as an 'mxCell' 
         XML element with specific attributes.
-        
+
         :param link_params: A dictionary containing the necessary parameters.
         """
         source = link_params['source']
@@ -405,7 +406,8 @@ class InterfaceDiagram:
                 'parent': '1'
             }
 
-            mx_cell = ET.SubElement(self.xml_content['root'], 'mxCell', mx_cell_attrs)
+            mx_cell = ET.SubElement(
+                self.xml_content['root'], 'mxCell', mx_cell_attrs)
 
             # Create an 'mxGeometry' XML element for the connections
             mx_geometry_attrs = {
@@ -422,23 +424,24 @@ class InterfaceDiagram:
         """
         Loop into the interfaces to find all the applications and protocols 
         that need to be created on the draw.io diagram
-        
+
         Create the application shapes in the selected order 
 
         Create the inbound and outbound protocols for each interface/application
-        
+
         The combination of an application and the inbound and outbound protocols 
         results in a instance
         """
         logging.info('create_structure_app_and_protocols()')
 
         for row, interface in enumerate(self.config['interfaces']):
-            self.size_parameters["y_protocol"] = (self.size_parameters["y_protocol_start"]  +
-                                               (PROTOCOL_HEIGHT + Y_OFFSET) * row)
+            self.size_parameters["y_protocol"] = (self.size_parameters["y_protocol_start"] +
+                                                  (PROTOCOL_HEIGHT + Y_OFFSET) * row)
 
             for _, data in enumerate(interface['apps']):
                 if 'sap_app' in data:
-                    self.create_app(data['sap_app'], FIRST_FILL_COLOR, FIRST_STROKE_COLOR)
+                    self.create_app(data['sap_app'],
+                                    FIRST_FILL_COLOR, FIRST_STROKE_COLOR)
                     self.create_protocol({
                         'app_name': data["sap_app"],
                         'direction': "out",
@@ -448,7 +451,8 @@ class InterfaceDiagram:
                     })
 
                 elif 'middleware' in data:
-                    self.create_app(data['middleware'], MIDDLE_FILL_COLOR, MIDDLE_STROKE_COLOR)
+                    self.create_app(data['middleware'],
+                                    MIDDLE_FILL_COLOR, MIDDLE_STROKE_COLOR)
 
                     self.create_protocol({
                         'app_name': data["middleware"],
@@ -467,7 +471,8 @@ class InterfaceDiagram:
                     })
 
                 elif 'gateway' in data:
-                    self.create_app(data['gateway'], GATEWAY_FILL_COLOR, GATEWAY_STROKE_COLOR)
+                    self.create_app(
+                        data['gateway'], GATEWAY_FILL_COLOR, GATEWAY_STROKE_COLOR)
 
                     self.create_protocol({
                         'app_name': data["gateway"],
@@ -486,7 +491,8 @@ class InterfaceDiagram:
                     })
 
                 elif 'other_middleware' in data:
-                    self.create_app(data['other_middleware'], OTHER_FILL_COLOR, OTHER_STROKE_COLOR)
+                    self.create_app(data['other_middleware'],
+                                    OTHER_FILL_COLOR, OTHER_STROKE_COLOR)
 
                     self.create_protocol({
                         'app_name': data["other_middleware"],
@@ -505,7 +511,8 @@ class InterfaceDiagram:
                     })
 
                 elif 'connected_app' in data:
-                    self.create_app(data['connected_app'], LAST_FILL_COLOR, LAST_STROKE_COLOR)
+                    self.create_app(data['connected_app'],
+                                    LAST_FILL_COLOR, LAST_STROKE_COLOR)
 
                     self.create_protocol({
                         'app_name': data["connected_app"],
@@ -515,24 +522,23 @@ class InterfaceDiagram:
                         'position': -10
                     })
 
-
     def create_instancies_connections(self) -> None:
         """
         After creates the applicatoin and protocols shape, this function creates the 
         connections and the labels.
-        
+
         The connections connect the shouce and target protocol for each interface
-        
+
         The labels are created above the connection and the ricefw url created down 
         below to the connections arrows.
-        
+
         the detail link generate a clickable link to an informed url.
         """
         logging.info('create_instancies_connections()')
 
         for row, interface in enumerate(self.config['interfaces']):
-            self.size_parameters["y_protocol"] = (self.size_parameters["y_protocol_start"]  +
-                                               (PROTOCOL_HEIGHT + Y_OFFSET) * row)
+            self.size_parameters["y_protocol"] = (self.size_parameters["y_protocol_start"] +
+                                                  (PROTOCOL_HEIGHT + Y_OFFSET) * row)
 
             for _, data in enumerate(interface['apps']):
                 if 'connection' not in data:
@@ -573,7 +579,6 @@ class InterfaceDiagram:
                             'direction': direction
                         })
 
-
     def build_xml_file(self) -> None:
         """
         Create the whole structure of the xml file readable by draw.io
@@ -583,7 +588,6 @@ class InterfaceDiagram:
         self.initialize_xml_structure()
         self.create_instancies()
         self.create_instancies_connections()
-
 
     def generate_diagram_url(self):
         """
@@ -596,4 +600,3 @@ class InterfaceDiagram:
         data = ET.tostring(self.xml_content['mxfile'])
         data = self.config['encoder'].encode_diagram_data(data)
         return 'https://viewer.diagrams.net/?#R' + data
-    
