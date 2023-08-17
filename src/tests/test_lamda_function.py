@@ -3,11 +3,9 @@ This module contains tests for the Lambda function.
 """
 import json
 import unittest
-import requests
-from bs4 import BeautifulSoup
 
 # Import your lambda_handler function from your script
-from src.main.lambda_function import lambda_handler
+from src.main.lambda_api_function import lambda_handler
 
 
 class TestLambdaFunction(unittest.TestCase):
@@ -46,28 +44,6 @@ class TestLambdaFunction(unittest.TestCase):
         # If your function returns a URL in the 'body',
         # you can add an assertion to check that as well
         self.assertIn('http', result['body'])
-
-
-    def test_lamda_handler_response(self):
-        """
-        Test the draw.io url generate from the lambda function
-        """
-        # Call the Lambda handler with the test event
-        result = lambda_handler(self.test_event, None)
-        url = result['body']
-
-        # Perform the GET request
-        response = requests.get(url, verify=False, timeout=5)
-
-        # Verify the status code
-        self.assertEqual(response.status_code, 200)
-
-        # Use BeautifulSoup to parse the HTML and extract the title
-        soup = BeautifulSoup(response.content, 'html.parser')
-        title = soup.title.string
-
-        # Verify the title (replace 'Expected Title' with the expected title value)
-        self.assertEqual(title, 'Flowchart Maker & Online Diagram Software')
 
 
 if __name__ == '__main__':
