@@ -107,6 +107,7 @@ class InterfaceDiagram:
         :param app_lists: A dictionary where keys are the app_types and values are the app_names.
         :return: A dictionary where the keys are the app names and the values are their orders.
         """
+
         logging.info('create_app_order()')
 
         app_list = (
