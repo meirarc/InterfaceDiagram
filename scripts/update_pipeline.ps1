@@ -19,7 +19,7 @@ aws s3 cp .\scripts\lambda_function.yaml s3://interface-diagram/lambda_function.
 Write-Host "Waiting for stack deletion..."
 Start-Sleep -Seconds 10
 
-# 6. Create the new stack
+# 6. Create the new stack.
 Write-Host "Creating new stack..."
 aws cloudformation create-stack --stack-name diagram --template-url https://interface-diagram.s3.amazonaws.com/lambda_function.yaml
 
