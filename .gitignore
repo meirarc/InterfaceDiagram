@@ -6,6 +6,7 @@ scripts/dax/
 old/
 diagram/
 
+.vscode/
 
 >>>>>>> master
 # Byte-compiled / optimized / DLL files
