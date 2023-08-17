@@ -31,6 +31,6 @@ jobs:
       run: |
         python -m unittest discover src/tests/
 
-    #- name: Run pipeline.ps1
-    #  working-directory: ./InterfaceDiagram
-    #  run: pwsh pipeline.ps1
+    - name: Run update_pipeline.ps1
+      working-directory: ./scripts/
+      run: pwsh update_pipeline.ps1
