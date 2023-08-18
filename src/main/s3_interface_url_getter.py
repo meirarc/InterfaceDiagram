@@ -68,7 +68,7 @@ class S3InterfaceURLGetter:
         if self.file_info['is_s3']:
             bucket, key = self._parse_s3_path(filepath)
             response = self.s3_client.get_object(Bucket=bucket, Key=key)
-            return pd.read_json(response['Body'])
+            return [f.lstrip('in/') for f in pd.read_json(response['Body'])]
         return None
 
     def _save_to_excel(self, data_frame, filepath):
@@ -124,16 +124,18 @@ class S3InterfaceURLGetter:
         for filename in self._list_files(self.file_info['source_dir']):
             if filename.endswith('.json'):
 
-                print('process_json_files', filename)
+                file_name = filename.lstrip('in/')
+
+                print('process_json_files', file_name)
 
                 # Set the flag to True when a JSON file is found
                 file_control['json_files_found'] = True
 
                 # Path to the source file and its potential backup
                 self.file_info['source_path'] = os.path.join(
-                    self.file_info['source_dir'], filename)
+                    self.file_info['source_dir'], file_name)
                 self.file_info['backup_path'] = os.path.join(
-                    self.file_info['backup_dir'], filename)
+                    self.file_info['backup_dir'], file_name)
 
                 # Check if the backup file exists and compare the contents
                 # Flag to decide whether to process the file or not
@@ -199,7 +201,7 @@ class S3InterfaceURLGetter:
                                             'connected_app'] = app_name
                         self.data_frame.loc[new_index,
                                             'body'] = self.parser.dumps(data)
-                        self.data_frame.loc[new_index, 'file_name'] = filename
+                        self.data_frame.loc[new_index, 'file_name'] = file_name
                         self.data_frame.loc[new_index, 'url'] = url
 
                         # Move the successfully processed file to backup
@@ -210,11 +212,11 @@ class S3InterfaceURLGetter:
                             self.file_info['source_path'], self.file_info['backup_path'])
 
                     except KeyError as key_error:
-                        print(f'Error processing file {filename}.'
+                        print(f'Error processing file {file_name}.'
                               f' Skipping. KeyError: {key_error}')
 
                         self.file_info['error_file_path'] = os.path.join(
-                            self.file_info['error_dir'], filename)
+                            self.file_info['error_dir'], file_name)
 
                         # shutil.move(self.file_info['source_path'],
                         #            self.file_info['error_file_path'])
