@@ -45,10 +45,10 @@ jobs:
     - name: Wait for stack deletion
       run: sleep 10
 
-    - name: Remove local function.zip
-      run: |
-        rm -f ./scripts/function_s3.zip
-        rm -f ./scripts/function_api.zip
+    #- name: Remove local function.zip
+    #  run: |
+    #    rm -f ./scripts/function_s3.zip
+    #    rm -f ./scripts/function_api.zip
 
     - name: Generate function.zip
       run: |
@@ -57,7 +57,7 @@ jobs:
     - name: Upload files to S3
       run: |
         aws s3 cp ./scripts/function_s3.zip s3://interface-diagram/function_s3.zip
-        aws s3 cp ./scripts/function_api.zip s3://interface-diagram/function_api.zip
+        aws s3 cp ./scripts/function.zip s3://interface-diagram/function_api.zip
         aws s3 cp ./scripts/lambda_function.yaml s3://interface-diagram/lambda_function.yaml
 
     - name: Create new stack
