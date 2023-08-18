@@ -123,6 +123,26 @@ class S3InterfaceURLGetter:
         bucket, key = path.split('/', 1)
         return bucket, key.lstrip('/')
 
+    def _compare_files(self, source_path, backup_path):
+        # Read the source and backup files into pandas DataFrames
+        source_content = pd.read_json(self._read_s3_file(source_path))
+        backup_content = pd.read_json(self._read_s3_file(backup_path))
+
+        # Compare the content of the two DataFrames
+        if source_content.equals(backup_content):
+            # If they are identical, delete the source file from S3
+            source_bucket, source_key = self._parse_s3_path(source_path)
+            self.s3_client.delete_object(Bucket=source_bucket, Key=source_key)
+            return False  # Indicate that this file should not be processed further
+
+        return True  # Indicate that this file should be processed further
+
+    def _read_s3_file(self, filepath):
+        bucket, key = self._parse_s3_path(filepath)
+        response = self.s3_client.get_object(Bucket=bucket, Key=key)
+        file_content = response['Body'].read().decode('utf-8')
+        return file_content
+
     def process_json_files(self):
         """
         Processes JSON files from the source directory and updates the DataFrame.
@@ -160,26 +180,8 @@ class S3InterfaceURLGetter:
 
                 if os.path.exists(self.file_info['backup_path']):
 
-                    with open(self.file_info['source_path'], 'r',
-                              encoding='utf-8') as source_file, \
-                            open(self.file_info['backup_path'], 'r',
-                                 encoding='utf-8') as backup_file:
-
-                        # Load content of both files
-                        source_content = json.load(source_file)
-                        backup_content = json.load(backup_file)
-
-                    # If content is identical, don't process the file
-                    print(
-                        f'process_json_files: source_content == backup_content: {source_content == backup_content}')
-                    print(
-                        f'process_json_files: source_content: {source_content}')
-                    print(
-                        f'process_json_files: backup_content: {backup_content}')
-
-                    if source_content == backup_content:
-                        file_control['process_file'] = False
-                        os.remove(self.file_info['source_path'])
+                    file_control['process_file'] = self._compare_files(
+                        self.file_info['source_path'], self.file_info['backup_path'])
 
                 # If there's no backup or the contents are different, process the source file
 
