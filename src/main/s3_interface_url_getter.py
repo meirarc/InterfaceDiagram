@@ -239,7 +239,7 @@ class S3InterfaceURLGetter:
                             self.file_info['source_path'], self.file_info['error_file_path'])
                         continue
 
-        if not file_control['json_files_found']:
+        if not file_control['json_files_found'] or self.data_frame.empty:
             # Create a new DataFrame with one empty row
             self.data_frame = pd.DataFrame(
                 columns=['connected_app', 'body', 'file_name', 'url'], index=[0])
