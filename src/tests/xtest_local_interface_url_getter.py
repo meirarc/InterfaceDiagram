@@ -1,3 +1,4 @@
+
 """
 Module to test the LocalInterfaceURLGetter
 """
@@ -29,6 +30,7 @@ class TestLocalInterfaceURLGetter(unittest.TestCase):
         # Create a temporary directory for the source files
         self.temp_dir = tempfile.TemporaryDirectory()
         self.source_dir = os.path.join(self.temp_dir.name, "test_source_dir")
+        self.excel_dir = os.path.join(self.temp_dir.name, "out")
 
         os.makedirs(self.source_dir, exist_ok=True)
 
@@ -49,7 +51,8 @@ class TestLocalInterfaceURLGetter(unittest.TestCase):
             self.json_files = json.load(file_content)
 
         # Create a dummy Excel file with some initial data
-        self.excel_file_path = '/mnt/data/test_excel_file.xlsx'
+        self.excel_file_path = os.path.join(
+            self.excel_dir, 'test_excel_file.xlsx')
 
         initial_data = pd.DataFrame([
             {'connected_app': 'InitialApp', 'body': 'InitialBody',
