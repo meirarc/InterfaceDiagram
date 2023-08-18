@@ -68,7 +68,11 @@ class S3InterfaceURLGetter:
         if self.file_info['is_s3']:
             bucket, key = self._parse_s3_path(filepath)
             response = self.s3_client.get_object(Bucket=bucket, Key=key)
-            return [f.lstrip('in/') for f in pd.read_json(response['Body'])]
+            df = pd.read_json(response['Body'])
+            print('_read_json:response: ', response)
+            print('_read_json:df: ', df)
+            # return [f.lstrip('in/') for f in pd.read_json(response['Body'])]
+            return df.to_dict(orient='records')
         return None
 
     def _save_to_excel(self, data_frame, filepath):
