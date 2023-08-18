@@ -105,7 +105,7 @@ class S3InterfaceURLGetter:
         bucket, key = path.split('/', 1)
 
         print('_parse_s3_path', bucket, key)
-        return bucket, key.lstrip('in/')
+        return bucket, key.lstrip('/')
 
     def process_json_files(self):
         """
