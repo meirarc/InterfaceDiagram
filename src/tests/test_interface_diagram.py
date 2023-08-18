@@ -31,6 +31,8 @@ class TestInterfaceDiagram(unittest.TestCase):
 
         self.interfaces = parser.json_to_object(data)
 
+        self.diagram = InterfaceDiagram(self.interfaces, EncodingHelper())
+
     def tearDown(self):
         """
         This method will run after each test method. 
@@ -52,30 +54,33 @@ class TestInterfaceDiagram(unittest.TestCase):
 
     def test_create_app_order(self):
         """
-        Test the create_app_order funcion
+        Test the app_order variable
         """
-        diagram = InterfaceDiagram(self.interfaces, EncodingHelper())
-
         # Assuming that the method modifies self.app_order and self.app_count
-        initial_app_order = diagram.app_order
-        initial_app_count = diagram.app_count
-
-        app_lists = diagram.app_lists.copy()
-        app_order, app_count = diagram.create_app_order(app_lists)
-
-        diagram.create_app_order(diagram.app_lists)
-
+        initial_app_order = self.diagram.app_order
+        app_lists = self.diagram.app_lists.copy()
+        app_order, _ = self.diagram.create_app_order(app_lists)
+        self.diagram.create_app_order(self.diagram.app_lists)
         self.assertEqual(initial_app_order, app_order)
+
+    def test_create_app_count(self):
+        """
+        Test the app_count variable
+        """
+        initial_app_count = self.diagram.app_count
+        app_lists = self.diagram.app_lists.copy()
+        _, app_count = self.diagram.create_app_order(app_lists)
+        self.diagram.create_app_order(self.diagram.app_lists)
         self.assertEqual(initial_app_count, app_count)
 
     def test_initialize_xml_structure(self):
         """
         Test the initialize_xml_structure function
         """
-        diagram = InterfaceDiagram(self.interfaces, EncodingHelper())
+        initial_mxfile = self.diagram.xml_content['mxfile']
+        initial_root = self.diagram.xml_content['root']
+        self.diagram.initialize_xml_structure()
 
-        initial_mxfile = diagram.xml_content['mxfile']
-        initial_root = diagram.xml_content['root']
         mock_string_mxfile = (f'<mxfile host="app.diagrams.net" '
                               f'modified="2023-07-25T12:42:08.179Z" agent="Mozilla/5.0 '
                               f'(Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
@@ -84,22 +89,20 @@ class TestInterfaceDiagram(unittest.TestCase):
                               f'<diagram name="Page-1" id="xI1n7PUDQ-lDr-DjmP3Y">'
                               f'<mxGraphModel dx="1182" dy="916" grid="1" gridSize="10" guides="1"'
                               f' tooltips="1" connect="1" arrows="1" fold="1" page="1" '
-                              f'pageScale="1" pageWidth="{diagram.size_parameters["page_width"]}" '
-                              f'pageHeight="{diagram.size_parameters["app_height"]}" math="0" '
+                              f'pageScale="1" '
+                              f'pageWidth="{self.diagram.size_parameters["page_width"]}" '
+                              f'pageHeight="{self.diagram.size_parameters["app_height"]}" math="0" '
                               f'shadow="0"><root><mxCell id="0" /><mxCell id="1" parent="0" />'
                               f'</root></mxGraphModel></diagram></mxfile>')
 
-        diagram.initialize_xml_structure()
-
         mxfile_string = ET.tostring(
-            diagram.xml_content['mxfile'], encoding='utf-8').decode('utf-8')
+            self.diagram.xml_content['mxfile'], encoding='utf-8').decode('utf-8')
+
         self.assertEqual(mxfile_string, mock_string_mxfile)
-
-        self.assertIsNotNone(diagram.xml_content['mxfile'])
-        self.assertIsNotNone(diagram.xml_content['root'])
-
-        self.assertNotEqual(initial_mxfile, diagram.xml_content['mxfile'])
-        self.assertNotEqual(initial_root, diagram.xml_content['root'])
+        self.assertIsNotNone(self.diagram.xml_content['mxfile'])
+        self.assertIsNotNone(self.diagram.xml_content['root'])
+        self.assertNotEqual(initial_mxfile, self.diagram.xml_content['mxfile'])
+        self.assertNotEqual(initial_root, self.diagram.xml_content['root'])
 
     def test_generate_diagram_url(self):
         """
