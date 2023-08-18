@@ -8,7 +8,7 @@ Resources:
       Code:
         S3Bucket: interface-diagram  # Create this bucket in S3
         S3Key: function_api.zip
-      Runtime: python3.10
+      Runtime: python3.8
       Timeout: 15
 
   InterfaceDiagramLambdaS3:
@@ -20,7 +20,7 @@ Resources:
       Code:
         S3Bucket: interface-diagram  # Create this bucket in S3
         S3Key: function_s3.zip
-      Runtime: python3.10
+      Runtime: python3.8
       Timeout: 15
 
   InterfaceDiagramAPI:
