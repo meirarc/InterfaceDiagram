@@ -21,5 +21,8 @@ with zipfile.ZipFile('./scripts/function.zip', 'a') as zipf:
     zipf.write('src/main/config.py',
                'src/main/config.py')
 
-    zipf.write('src/main/interface_url_getter.py',
-               'src/main/interface_url_getter.py')
+    zipf.write('src/main/local_interface_url_getter.py',
+               'src/main/local_interface_url_getter.py')
+
+    zipf.write('src/main/s3_interface_url_getter.py',
+               'src/main/s3_interface_url_getter.py')

@@ -8,10 +8,12 @@ from urllib.parse import quote
 
 from src.main.encoding_helper import EncodingHelper
 
+
 class TestEncodingHelper(unittest.TestCase):
     """
     This class is used to test the EncodingHelper class and functions
     """
+
     def test_js_btoa(self):
         """
         Test the result of the js_btoa function
@@ -78,6 +80,7 @@ class TestEncodingHelper(unittest.TestCase):
 
         # Assert that the actual output is equal to the expected output
         self.assertEqual(actual_output, expected_output)
+
 
 # Run the tests
 if __name__ == '__main__':
