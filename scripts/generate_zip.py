@@ -1,4 +1,3 @@
-
 import zipfile
 import os
 import site
@@ -45,10 +44,11 @@ with zipfile.ZipFile('./scripts/function_s3.zip', 'a') as zipf:
     site_packages_path = site.getsitepackages()[0]
 
     # Package the libraries from the global site-packages directory
+    # directly at the root level of the zip file
     for root, dirs, files in os.walk(site_packages_path):
         for file in files:
             src_path = os.path.join(root, file)
-            dest_path = os.path.join(root.replace(
-                site_packages_path, 'package'), file)
+            dest_path = os.path.relpath(
+                os.path.join(root, file), site_packages_path)
             log_file_paths(zipf, src_path, dest_path)
             zipf.write(src_path, dest_path)

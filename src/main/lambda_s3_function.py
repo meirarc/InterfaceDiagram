@@ -5,9 +5,6 @@ Lambda Function
 from src.main.s3_interface_url_getter import S3InterfaceURLGetter
 import sys
 import json
-print("sys.path:", sys.path)
-
-sys.path.insert(0, '/var/task/package')
 
 
 def lambda_handler(event, _):
