@@ -18,7 +18,7 @@ from src.main.json_parser import JSONParser
 from src.main.interface_diagram import InterfaceDiagram
 
 
-class InterfaceURLGetter:
+class S3InterfaceURLGetter:
     """
     A class to update the Interface Diagram URL Excel file.
 

@@ -18,7 +18,7 @@ from src.main.json_parser import JSONParser
 from src.main.interface_diagram import InterfaceDiagram
 
 
-class InterfaceURLGetter:
+class LocalInterfaceURLGetter:
     """
     A class to update the Interface Diagram URL Excel file.
 
@@ -36,8 +36,8 @@ class InterfaceURLGetter:
 
         self.file_info = {
             'source_dir': source_dir,
-            'backup_dir': f'{source_dir}/backup',
-            'error_dir': f'{source_dir}/error',
+            'backup_dir': os.path.join(source_dir, 'backup'),
+            'error_dir': os.path.join(source_dir, 'error'),
             'excel_file': excel_file,
             'source_path': '',
             'backup_path': '',
