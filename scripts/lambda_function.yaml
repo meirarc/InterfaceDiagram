@@ -28,6 +28,12 @@ Resources:
             Resource:
               - arn:aws:s3:::interface-diagram-files
               - arn:aws:s3:::interface-diagram-files/*
+          - Effect: Allow
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource: "arn:aws:logs:*:*:*"
       Roles:
         - Ref: LambdaExecutionRole
 

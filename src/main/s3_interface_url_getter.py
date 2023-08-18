@@ -56,6 +56,12 @@ class S3InterfaceURLGetter:
     def _list_files(self, directory):
         bucket, prefix = self._parse_s3_path(directory)
         result = self.s3_client.list_objects(Bucket=bucket, Prefix=prefix)
+
+        print(f'_list_files: directory ({directory})')
+        print(f'_list_files: bucket ({bucket})')
+        print(f'_list_files: prefix ({prefix})')
+        print(f'_list_files: result ({result})')
+
         for content in result.get('Contents', []):
             yield content['Key']
 
@@ -80,7 +86,11 @@ class S3InterfaceURLGetter:
         )
 
     def _move_file(self, src_path, dest_path):
-        print(f'_move_file: src_path ({src_path}), dest_path ({dest_path})')
+        print(f'_move_file: src_path ({src_path})')
+        print(f'_move_file: dest_path ({dest_path})')
+
+        print("_move_file: Debug: Source Path:", self.file_info['source_path'])
+        print("_move_file: Debug: Backup Path:", self.file_info['backup_path'])
 
         src_bucket, src_key = self._parse_s3_path(src_path)
         dest_bucket, dest_key = self._parse_s3_path(dest_path)
@@ -133,6 +143,7 @@ class S3InterfaceURLGetter:
                 # Path to the source file and its potential backup
                 self.file_info['source_path'] = os.path.join(
                     self.file_info['source_dir'], clean_file_name)
+
                 self.file_info['backup_path'] = os.path.join(
                     self.file_info['backup_dir'], clean_file_name)
 
