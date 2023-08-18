@@ -31,13 +31,40 @@ jobs:
       run: |
         python -m unittest discover src/tests/
 
-    #- name: Configure AWS Credentials
-    #  uses: aws-actions/configure-aws-credentials@v1
-    #  with:
-    #    aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    #    aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    #    aws-region: us-east-1 # (Optional) Set the AWS region. Default is us-east-1.
-    #      
-    #- name: Run update_pipeline.ps1
-    #  working-directory: ./
-    #  run: pwsh ./scripts/update_pipeline.ps1
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1 # (Optional) Set the AWS region. Default is us-east-1.
+          
+    - name: Delete current stack
+      run: 
+        aws cloudformation delete-stack --stack-name diagram
+
+    - name: Wait for stack deletion
+      run: sleep 10
+
+    - name: Remove local function.zip
+      run: rm -f ./scripts/function.zip
+
+    - name: Generate function.zip
+      run: |
+        python ./scripts/generate_zip.py
+
+    - name: Upload files to S3
+      run: |
+        aws s3 cp ./scripts/function.zip s3://interface-diagram/function.zip
+        aws s3 cp ./scripts/lambda_function.yaml s3://interface-diagram/lambda_function.yaml
+
+    - name: Create new stack
+      run: |
+        aws cloudformation create-stack --stack-name diagram --template-url https://interface-diagram.s3.amazonaws.com/lambda_function.yaml
+
+    - name: Wait for stack creation
+      run: sleep 20
+
+    - name: Retrieve the stack output
+      run: |
+        stackOutput=$(aws cloudformation describe-stacks --stack-name diagram --query "Stacks[0].Outputs")
+        echo $stackOutput

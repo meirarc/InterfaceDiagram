@@ -91,8 +91,8 @@ class InterfaceURLGetter:
                                  encoding='utf-8') as backup_file:
 
                         # Load content of both files
-                        source_content = self.parser.parse(source_file)
-                        backup_content = self.parser.parse(backup_file)
+                        source_content = json.load(source_file)
+                        backup_content = json.load(backup_file)
 
                     # If content is identical, don't process the file
                     if source_content == backup_content:
