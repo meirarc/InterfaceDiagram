@@ -35,7 +35,7 @@ class S3InterfaceURLGetter:
         self.file_info = {
             'source_dir': source_dir,
             'backup_dir': f'{source_dir}backup/',
-            'error_dir': f'{source_dir}error',
+            'error_dir': f'{source_dir}error/',
             'excel_file': excel_file,
             'is_s3': source_dir.startswith('s3://'),
             'source_path': '',
@@ -63,7 +63,9 @@ class S3InterfaceURLGetter:
         print(f'_list_files: result ({result})')
 
         for content in result.get('Contents', []):
-            yield content['Key']
+            key = content['Key']
+            if not key.startswith('in/backup/') and not key.startswith('in/error/'):
+                yield key
 
     def _read_json(self, filepath):
         bucket, key = self._parse_s3_path(filepath)
@@ -132,7 +134,7 @@ class S3InterfaceURLGetter:
         for filename in self._list_files(self.file_info['source_dir']):
             if filename.endswith('.json'):
 
-                clean_file_name = filename.lstrip('in/')
+                clean_file_name = filename.split('/')[-1]
 
                 print(
                     f'process_json_files: clean_file_name: ({clean_file_name})')
@@ -140,12 +142,9 @@ class S3InterfaceURLGetter:
                 # Set the flag to True when a JSON file is found
                 file_control['json_files_found'] = True
 
-                # Path to the source file and its potential backup
-                self.file_info['source_path'] = os.path.join(
-                    self.file_info['source_dir'], clean_file_name)
-
-                self.file_info['backup_path'] = os.path.join(
-                    self.file_info['backup_dir'], clean_file_name)
+                # Set source and backup paths for this file
+                self.file_info['source_path'] = f'{self.file_info["source_dir"]}{clean_file_name}'
+                self.file_info['backup_path'] = f'{self.file_info["backup_dir"]}{clean_file_name}'
 
                 print(
                     f'process_json_files: self.file_info["source_path"]: ({self.file_info["source_path"]})')
