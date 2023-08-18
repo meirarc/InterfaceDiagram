@@ -49,7 +49,7 @@ Resources:
     Properties:
       FunctionName: InterfaceDiagramS3
       Handler: src/main/lambda_s3_function.lambda_handler
-       Role: !GetAtt [LambdaExecutionRole, Arn]
+      Role: !GetAtt [LambdaExecutionRole, Arn]
       Code:
         S3Bucket: interface-diagram  # Create this bucket in S3
         S3Key: function_s3.zip
