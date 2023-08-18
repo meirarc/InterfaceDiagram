@@ -13,6 +13,9 @@ import pandas as pd
 
 import boto3
 
+from openpyxl.worksheet.table import Table, TableStyleInfo
+from openpyxl import load_workbook
+
 from src.main.encoding_helper import EncodingHelper
 from src.main.json_parser import JSONParser
 from src.main.interface_diagram import InterfaceDiagram
@@ -76,16 +79,40 @@ class S3InterfaceURLGetter:
 
     def _save_to_excel(self, data_frame, filepath):
         excel_buffer = io.BytesIO()
+
         # Save the DataFrame to the BytesIO object as an Excel file
-        data_frame.to_excel(excel_buffer, index=False, engine='openpyxl')
+        with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
+            data_frame.to_excel(writer, index=False)
+
         # Reset the buffer's position to the beginning
         excel_buffer.seek(0)
+
+        work_book = load_workbook(excel_buffer)
+        work_space = work_book.active
+
+        # Define a table and add it to the worksheet
+        tab = Table(displayName="Table1", ref=work_space.dimensions)
+
+        # Add a default style to the table
+        style = TableStyleInfo(name="TableStyleMedium9", showFirstColumn=False,
+                               showLastColumn=False, showRowStripes=True, showColumnStripes=False)
+        tab.tableStyleInfo = style
+        work_space.add_table(tab)
+
+        # Save the Excel file with the table back to the BytesIO object
+        excel_buffer.seek(0)
+        work_book.save(excel_buffer)
+        work_book.close()
+
+        # Reset the buffer's position to the beginning
+        excel_buffer.seek(0)
+
         # Extract the bucket and key from the S3 filepath
         bucket, key = self._parse_s3_path(filepath)
+
         # Upload the buffer contents (the Excel file) to S3
         self.s3_client.put_object(
-            Bucket=bucket, Key=key, Body=excel_buffer
-        )
+            Bucket=bucket, Key=key, Body=excel_buffer)
 
     def _move_file(self, src_path, dest_path):
         print(f'_move_file: src_path ({src_path})')
