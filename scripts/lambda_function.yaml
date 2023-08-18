@@ -1,4 +1,37 @@
 Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+  LambdaExecutionPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: LambdaS3Access
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:ListBucket
+              - s3:GetObject
+              - s3:PutObject
+            Resource:
+              - arn:aws:s3:::interface-diagram-files
+              - arn:aws:s3:::interface-diagram-files/*
+      Roles:
+        - Ref: LambdaExecutionRole
+
+
+
   InterfaceDiagramLambda:
     Type: AWS::Lambda::Function
     Properties:
@@ -16,7 +49,7 @@ Resources:
     Properties:
       FunctionName: InterfaceDiagramS3
       Handler: src/main/lambda_s3_function.lambda_handler
-      Role: arn:aws:iam::543421991131:role/lambda_role  # Replace with your IAM role ARN
+       Role: !GetAtt [LambdaExecutionRole, Arn]
       Code:
         S3Bucket: interface-diagram  # Create this bucket in S3
         S3Key: function_s3.zip
