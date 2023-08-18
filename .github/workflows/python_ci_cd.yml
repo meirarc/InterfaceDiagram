@@ -67,10 +67,10 @@ jobs:
         --capabilities CAPABILITY_IAM
 
 
-    - name: Wait for stack creation
-      run: sleep 20
+    #- name: Wait for stack creation
+    #  run: sleep 20
 
-    - name: Retrieve the stack output
-      run: |
-        stackOutput=$(aws cloudformation describe-stacks --stack-name diagram --query "Stacks[0].Outputs")
-        echo $stackOutput
+    #- name: Retrieve the stack output
+    #  run: |
+    #    stackOutput=$(aws cloudformation describe-stacks --stack-name diagram --query "Stacks[0].Outputs")
+    #    echo $stackOutput
