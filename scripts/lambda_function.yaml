@@ -7,7 +7,19 @@ Resources:
       Role: arn:aws:iam::543421991131:role/lambda_role  # Replace with your IAM role ARN
       Code:
         S3Bucket: interface-diagram  # Create this bucket in S3
-        S3Key: function.zip
+        S3Key: function_api.zip
+      Runtime: python3.10
+      Timeout: 15
+
+  InterfaceDiagramLambdaS3:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: InterfaceDiagramS3
+      Handler: src/main/lambda_s3_function.lambda_handler
+      Role: arn:aws:iam::543421991131:role/lambda_role  # Replace with your IAM role ARN
+      Code:
+        S3Bucket: interface-diagram  # Create this bucket in S3
+        S3Key: function_s3.zip
       Runtime: python3.10
       Timeout: 15
 

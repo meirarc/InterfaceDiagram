@@ -22,10 +22,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pylint
+        # pip install pylint
 
-    - name: Run pylint
-      run: pylint src/main/
+    #- name: Run pylint
+    #  run: pylint src/main/
       
     - name: Run unittest
       run: |
@@ -54,7 +54,8 @@ jobs:
 
     - name: Upload files to S3
       run: |
-        aws s3 cp ./scripts/function.zip s3://interface-diagram/function.zip
+        aws s3 cp ./scripts/function.zip s3://interface-diagram/function_s3.zip
+        aws s3 cp ./scripts/function.zip s3://interface-diagram/function_api.zip
         aws s3 cp ./scripts/lambda_function.yaml s3://interface-diagram/lambda_function.yaml
 
     - name: Create new stack

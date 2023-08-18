@@ -5,13 +5,13 @@ This module contains a class that reads JSON files from a specified directory,
 processes the contents of these files, and updates an Excel file with the parsed data.
 If no JSON files are found, a blank record is created in the Excel file.
 """
+import io
 import json
 import os
 
-import shutil
-from openpyxl.worksheet.table import Table, TableStyleInfo
-from openpyxl import load_workbook
 import pandas as pd
+
+import boto3
 
 from src.main.encoding_helper import EncodingHelper
 from src.main.json_parser import JSONParser
@@ -31,14 +31,13 @@ class S3InterfaceURLGetter:
         """
         Initializes the DiagramURLUpdater with specified directory paths and an empty DataFrame.
         """
-
         # Specify directories
-
         self.file_info = {
             'source_dir': source_dir,
-            'backup_dir': f'{source_dir}/backup',
-            'error_dir': f'{source_dir}/error',
+            'backup_dir': f'{source_dir}backup/',
+            'error_dir': f'{source_dir}error',
             'excel_file': excel_file,
+            'is_s3': source_dir.startswith('s3://'),
             'source_path': '',
             'backup_path': '',
             'error_file_path': ''
@@ -50,6 +49,54 @@ class S3InterfaceURLGetter:
 
         self.data_frame = pd.DataFrame(
             columns=['connected_app', 'body', 'file_name', 'url'])
+
+        if self.file_info['is_s3']:
+            self.s3_client = boto3.client('s3')
+
+    def _list_files(self, directory):
+        if self.file_info['is_s3']:
+            bucket, prefix = self._parse_s3_path(directory)
+            result = self.s3_client.list_objects(Bucket=bucket, Prefix=prefix)
+            for content in result.get('Contents', []):
+                yield content['Key']
+
+    def _read_json(self, filepath):
+        if self.file_info['is_s3']:
+            bucket, key = self._parse_s3_path(filepath)
+            response = self.s3_client.get_object(Bucket=bucket, Key=key)
+            return pd.read_json(response['Body'])
+        return None
+
+    def _save_to_excel(self, data_frame, filepath):
+        if self.file_info['is_s3']:
+            excel_buffer = io.BytesIO()
+            # Save the DataFrame to the BytesIO object as an Excel file
+            data_frame.to_excel(excel_buffer, index=False, engine='openpyxl')
+
+            # Reset the buffer's position to the beginning
+            excel_buffer.seek(0)
+
+            # Extract the bucket and key from the S3 filepath
+            bucket, key = self._parse_s3_path(filepath)
+
+            # Upload the buffer contents (the Excel file) to S3
+            self.s3_client.put_object(
+                Bucket=bucket, Key=key, Body=excel_buffer
+            )
+
+    def _move_file(self, src_path, dest_path):
+        if self.file_info['is_s3']:
+            src_bucket, src_key = self._parse_s3_path(src_path)
+            dest_bucket, dest_key = self._parse_s3_path(dest_path)
+            self.s3_client.copy_object(Bucket=dest_bucket, CopySource={
+                                       'Bucket': src_bucket, 'Key': src_key}, Key=dest_key)
+            self.s3_client.delete_object(Bucket=src_bucket, Key=src_key)
+
+    def _parse_s3_path(self, path):
+        assert path.startswith('s3://')
+        path = path[5:]
+        bucket, key = path.split('/', 1)
+        return bucket, key
 
     def process_json_files(self):
         """
@@ -64,10 +111,8 @@ class S3InterfaceURLGetter:
             'process_file': True
         }
 
-        file_control['json_files_found'] = False
-
         # Loop through files in directory
-        for filename in os.listdir(self.file_info['source_dir']):
+        for filename in self._list_files(self.file_info['source_dir']):
             if filename.endswith('.json'):
 
                 # Set the flag to True when a JSON file is found
@@ -101,8 +146,10 @@ class S3InterfaceURLGetter:
 
                 # If there's no backup or the contents are different, process the source file
                 if file_control['process_file']:
-                    with open(self.file_info['source_path'], 'r', encoding='utf-8') as file:
-                        data = json.load(file)
+
+                    data = self._read_json(self.file_info['source_path'])
+                    # with open(self.file_info['source_path'], 'r', encoding='utf-8') as file:
+                    #    data = json.load(file)
 
                     # Initialize app_name to None at the beginning of each iteration
                     app_name = None
@@ -137,7 +184,10 @@ class S3InterfaceURLGetter:
                         self.data_frame.loc[new_index, 'url'] = url
 
                         # Move the successfully processed file to backup
-                        shutil.move(
+                        # shutil.move(
+                        #    self.file_info['source_path'], self.file_info['backup_path'])
+
+                        self._move_file(
                             self.file_info['source_path'], self.file_info['backup_path'])
 
                     except KeyError as key_error:
@@ -147,8 +197,11 @@ class S3InterfaceURLGetter:
                         self.file_info['error_file_path'] = os.path.join(
                             self.file_info['error_dir'], filename)
 
-                        shutil.move(self.file_info['source_path'],
-                                    self.file_info['error_file_path'])
+                        # shutil.move(self.file_info['source_path'],
+                        #            self.file_info['error_file_path'])
+
+                        self._move_file(
+                            self.file_info['source_path'], self.file_info['error_file_path'])
                         continue
 
         if not file_control['json_files_found']:
@@ -160,24 +213,4 @@ class S3InterfaceURLGetter:
         """
         Saves the new records (stored in self.df) to the specified sheet in the Excel file.
         """
-        # Save the processed data back to the Excel file
-        self.data_frame.to_excel(
-            self.file_info['excel_file'], index=False, engine='openpyxl')
-
-        # Open the Excel file with openpyxl
-        work_book = load_workbook(self.file_info['excel_file'])
-        work_space = work_book.active
-
-        # Define a table and add it to the worksheet
-        tab = Table(displayName="Table1", ref=work_space.dimensions)
-
-        # Add a default style to the table
-        style = TableStyleInfo(name="TableStyleMedium9", showFirstColumn=False,
-                               showLastColumn=False, showRowStripes=True, showColumnStripes=False)
-        tab.tableStyleInfo = style
-
-        work_space.add_table(tab)
-
-        # Save the Excel file with the table
-        work_book.save(self.file_info['excel_file'])
-        work_book.close()
+        self._save_to_excel(self.data_frame, self.file_info['excel_file'])
