@@ -14,8 +14,8 @@ def lambda_handler(event, _):
     # Print the event object to CloudWatch Logs
     print("Received event: " + json.dumps(event, indent=2))
 
-    source_dir = 'https://interface-diagram-files.s3.amazonaws.com/in/'
-    excel_file = 'https://interface-diagram-files.s3.amazonaws.com/out/interfaces_diagrams_urls.xlsx'
+    source_dir = 's3://interface-diagram-files/in/'
+    excel_file = 's3://interface-diagram-files/out/interfaces_diagrams_urls.xlsx'
 
     getter = S3InterfaceURLGetter(source_dir, excel_file)
 
