@@ -43,6 +43,8 @@ class S3InterfaceURLGetter:
             'error_file_path': ''
         }
 
+        print('__init__', self.file_info)
+
         self.parser = JSONParser()
         self.encoder = EncodingHelper()
         self.interfaces = None
@@ -54,6 +56,7 @@ class S3InterfaceURLGetter:
             self.s3_client = boto3.client('s3')
 
     def _list_files(self, directory):
+        print('_list_files', directory)
         if self.file_info['is_s3']:
             bucket, prefix = self._parse_s3_path(directory)
             result = self.s3_client.list_objects(Bucket=bucket, Prefix=prefix)
@@ -61,6 +64,7 @@ class S3InterfaceURLGetter:
                 yield content['Key']
 
     def _read_json(self, filepath):
+        print('_read_json', filepath)
         if self.file_info['is_s3']:
             bucket, key = self._parse_s3_path(filepath)
             response = self.s3_client.get_object(Bucket=bucket, Key=key)
@@ -68,6 +72,7 @@ class S3InterfaceURLGetter:
         return None
 
     def _save_to_excel(self, data_frame, filepath):
+        print('_save_to_excel', data_frame, filepath)
         if self.file_info['is_s3']:
             excel_buffer = io.BytesIO()
             # Save the DataFrame to the BytesIO object as an Excel file
@@ -85,6 +90,7 @@ class S3InterfaceURLGetter:
             )
 
     def _move_file(self, src_path, dest_path):
+        print('_move_file', src_path, dest_path)
         if self.file_info['is_s3']:
             src_bucket, src_key = self._parse_s3_path(src_path)
             dest_bucket, dest_key = self._parse_s3_path(dest_path)
@@ -93,9 +99,12 @@ class S3InterfaceURLGetter:
             self.s3_client.delete_object(Bucket=src_bucket, Key=src_key)
 
     def _parse_s3_path(self, path):
+        print('_parse_s3_path', path)
         assert path.startswith('s3://')
         path = path[5:]
         bucket, key = path.split('/', 1)
+
+        print('_parse_s3_path', bucket, key)
         return bucket, key
 
     def process_json_files(self):
@@ -115,6 +124,8 @@ class S3InterfaceURLGetter:
         for filename in self._list_files(self.file_info['source_dir']):
             if filename.endswith('.json'):
 
+                print('process_json_files', filename)
+
                 # Set the flag to True when a JSON file is found
                 file_control['json_files_found'] = True
 
@@ -127,6 +138,12 @@ class S3InterfaceURLGetter:
                 # Check if the backup file exists and compare the contents
                 # Flag to decide whether to process the file or not
                 file_control['process_file'] = True
+
+                print('process_json_files', file_control)
+
+                print('process_json_files', self.file_info)
+                print('process_json_files', os.path.exists(
+                    self.file_info['backup_path']))
 
                 if os.path.exists(self.file_info['backup_path']):
 
@@ -145,6 +162,8 @@ class S3InterfaceURLGetter:
                         os.remove(self.file_info['source_path'])
 
                 # If there's no backup or the contents are different, process the source file
+
+                print('process_json_files', file_control['process_file'])
                 if file_control['process_file']:
 
                     data = self._read_json(self.file_info['source_path'])
