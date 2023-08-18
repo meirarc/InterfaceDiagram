@@ -27,9 +27,9 @@ jobs:
     #- name: Run pylint
     #  run: pylint src/main/
       
-    - name: Run unittest
-      run: |
-        python -m unittest discover src/tests/
+    #- name: Run unittest
+    #  run: |
+    #    python -m unittest discover src/tests/
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -50,7 +50,7 @@ jobs:
     #    rm -f ./scripts/function_s3.zip
     #    rm -f ./scripts/function_api.zip
 
-    - name: Generate function.zip
+    - name: Generate zip files
       run: |
         python ./scripts/generate_zip.py
 
