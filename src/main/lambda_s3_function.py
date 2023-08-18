@@ -1,10 +1,11 @@
 """
 Lambda Function
 """
-import json
-import sys
 
 from src.main.s3_interface_url_getter import S3InterfaceURLGetter
+import sys
+import json
+print("sys.path:", sys.path)
 
 sys.path.insert(0, '/var/task/package')
 
@@ -15,7 +16,6 @@ def lambda_handler(event, _):
     """
     # Print the event object to CloudWatch Logs
     print("Received event: " + json.dumps(event, indent=2))
-    print("sys.path:", sys.path)
 
     source_dir = 'https://interface-diagram-files.s3.amazonaws.com/in/'
     excel_file = 'https://interface-diagram-files.s3.amazonaws.com/out/interfaces_diagrams_urls.xlsx'
