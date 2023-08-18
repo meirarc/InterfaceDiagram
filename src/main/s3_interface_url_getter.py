@@ -124,18 +124,22 @@ class S3InterfaceURLGetter:
         return bucket, key.lstrip('/')
 
     def _compare_files(self, source_path, backup_path):
-        # Read the source and backup files into pandas DataFrames
-        source_content = pd.read_json(self._read_s3_file(source_path))
-        backup_content = pd.read_json(self._read_s3_file(backup_path))
 
-        # Compare the content of the two DataFrames
-        if source_content.equals(backup_content):
-            # If they are identical, delete the source file from S3
-            source_bucket, source_key = self._parse_s3_path(source_path)
-            self.s3_client.delete_object(Bucket=source_bucket, Key=source_key)
-            return False  # Indicate that this file should not be processed further
+        try:
+            # Read the source and backup files into pandas DataFrames
+            source_content = pd.read_json(self._read_s3_file(source_path))
+            backup_content = pd.read_json(self._read_s3_file(backup_path))
 
-        return True  # Indicate that this file should be processed further
+            # Compare the content of the two DataFrames
+            if source_content.equals(backup_content):
+                # If they are identical, delete the source file from S3
+                source_bucket, source_key = self._parse_s3_path(source_path)
+                self.s3_client.delete_object(
+                    Bucket=source_bucket, Key=source_key)
+                return False  # Indicate that this file should not be processed further
+            return True  # Indicate that this file should be processed further
+        except self.s3_client.exceptions.NoSuchKey:
+            return True
 
     def _read_s3_file(self, filepath):
         bucket, key = self._parse_s3_path(filepath)
@@ -178,10 +182,8 @@ class S3InterfaceURLGetter:
                 # Flag to decide whether to process the file or not
                 file_control['process_file'] = True
 
-                if os.path.exists(self.file_info['backup_path']):
-
-                    file_control['process_file'] = self._compare_files(
-                        self.file_info['source_path'], self.file_info['backup_path'])
+                file_control['process_file'] = self._compare_files(
+                    self.file_info['source_path'], self.file_info['backup_path'])
 
                 # If there's no backup or the contents are different, process the source file
 
