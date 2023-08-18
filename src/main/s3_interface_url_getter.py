@@ -68,8 +68,13 @@ class S3InterfaceURLGetter:
         if self.file_info['is_s3']:
             bucket, key = self._parse_s3_path(filepath)
             response = self.s3_client.get_object(Bucket=bucket, Key=key)
-            df = pd.read_json(response['Body'])
+
+            json_content = response['Body'].read().decode('utf-8')
+
+            df = pd.read_json(json_content)
+
             print('_read_json:response: ', response)
+            print('_read_json:json_content: ', json_content)
             print('_read_json:df: ', df)
             # return [f.lstrip('in/') for f in pd.read_json(response['Body'])]
             return df.to_dict(orient='records')
