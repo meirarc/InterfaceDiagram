@@ -104,6 +104,32 @@ Resources:
       Description: Production Stage
       RestApiId: !Ref InterfaceDiagramAPI
       DeploymentId: !Ref InterfaceDiagramDeployment
+  
+  WeeklyLambdaTrigger:
+    Type: "AWS::Events::Rule"
+    Properties: 
+      Description: "Trigger my Lambda function every weekday at 10:00 AM Madrid time"
+      ScheduleExpression: "cron(0 8 ? * MON-FRI *)"
+      State: "ENABLED"
+      Targets: 
+        - 
+          Arn: 
+            Fn::GetAtt: 
+              - "InterfaceDiagramLambdaS3"
+              - "Arn"
+          Id: "TargetFunctionV1"
+
+  PermissionForEventsToInvokeLambda:
+    Type: "AWS::Lambda::Permission"
+    Properties: 
+      FunctionName: 
+        Ref: "InterfaceDiagramLambdaS3"
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: 
+        Fn::GetAtt: 
+          - "WeeklyLambdaTrigger"
+          - "Arn"
 
 Outputs:
   ApiUrl:
