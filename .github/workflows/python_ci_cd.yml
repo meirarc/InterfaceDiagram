@@ -62,7 +62,10 @@ jobs:
 
     - name: Create new stack
       run: |
-        aws cloudformation create-stack --stack-name diagram --template-url https://interface-diagram.s3.amazonaws.com/lambda_function.yaml
+        aws cloudformation create-stack --stack-name diagram \
+        --template-url https://interface-diagram.s3.amazonaws.com/lambda_function.yaml \
+        --capabilities CAPABILITY_IAM
+
 
     - name: Wait for stack creation
       run: sleep 20
