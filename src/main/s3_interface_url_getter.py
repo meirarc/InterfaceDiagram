@@ -81,7 +81,7 @@ class S3InterfaceURLGetter:
         excel_buffer = io.BytesIO()
 
         # Save the DataFrame to the BytesIO object as an Excel file
-        with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
+        with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:  # pylint: disable=abstract-class-instantiated
             data_frame.to_excel(writer, index=False)
 
         # Reset the buffer's position to the beginning
