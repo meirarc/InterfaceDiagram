@@ -60,11 +60,6 @@ class S3InterfaceURLGetter:
         bucket, prefix = self._parse_s3_path(directory)
         result = self.s3_client.list_objects(Bucket=bucket, Prefix=prefix)
 
-        print(f'_list_files: directory ({directory})')
-        print(f'_list_files: bucket ({bucket})')
-        print(f'_list_files: prefix ({prefix})')
-        print(f'_list_files: result ({result})')
-
         for content in result.get('Contents', []):
             key = content['Key']
             if not key.startswith('in/backup/') and not key.startswith('in/error/'):
@@ -115,12 +110,6 @@ class S3InterfaceURLGetter:
             Bucket=bucket, Key=key, Body=excel_buffer)
 
     def _move_file(self, src_path, dest_path):
-        print(f'_move_file: src_path ({src_path})')
-        print(f'_move_file: dest_path ({dest_path})')
-
-        print("_move_file: Debug: Source Path:", self.file_info['source_path'])
-        print("_move_file: Debug: Backup Path:", self.file_info['backup_path'])
-
         src_bucket, src_key = self._parse_s3_path(src_path)
         dest_bucket, dest_key = self._parse_s3_path(dest_path)
 
@@ -129,14 +118,9 @@ class S3InterfaceURLGetter:
         self.s3_client.delete_object(Bucket=src_bucket, Key=src_key)
 
     def _parse_s3_path(self, path):
-        print('_parse_s3_path: path:', path)
-
         assert path.startswith('s3://')
         path = path[5:]
         bucket, key = path.split('/', 1)
-
-        print(f'_parse_s3_path: bucket ({bucket}), key ({key})')
-
         return bucket, key.lstrip('/')
 
     def process_json_files(self):
@@ -163,20 +147,12 @@ class S3InterfaceURLGetter:
 
                 clean_file_name = filename.split('/')[-1]
 
-                print(
-                    f'process_json_files: clean_file_name: ({clean_file_name})')
-
                 # Set the flag to True when a JSON file is found
                 file_control['json_files_found'] = True
 
                 # Set source and backup paths for this file
                 self.file_info['source_path'] = f'{self.file_info["source_dir"]}{clean_file_name}'
                 self.file_info['backup_path'] = f'{self.file_info["backup_dir"]}{clean_file_name}'
-
-                print(
-                    f'process_json_files: self.file_info["source_path"]: ({self.file_info["source_path"]})')
-                print(
-                    f'process_json_files: self.file_info["backup_path"]: ({self.file_info["backup_path"]})')
 
                 # Check if the backup file exists and compare the contents
                 # Flag to decide whether to process the file or not
@@ -194,6 +170,13 @@ class S3InterfaceURLGetter:
                         backup_content = json.load(backup_file)
 
                     # If content is identical, don't process the file
+                    print(
+                        f'process_json_files: source_content == backup_content: {source_content == backup_content}')
+                    print(
+                        f'process_json_files: source_content: {source_content}')
+                    print(
+                        f'process_json_files: backup_content: {backup_content}')
+
                     if source_content == backup_content:
                         file_control['process_file'] = False
                         os.remove(self.file_info['source_path'])
