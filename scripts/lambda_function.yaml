@@ -1,4 +1,7 @@
 Resources:
+
+  # Lambda Execution Role that will be referenced on the LambdaExecutionPolicy to extend the access to S3
+  # This Role is used on the Lambda InterfaceDiagramLambdaS3 to process S3 files
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -12,6 +15,9 @@ Resources:
             Action:
               - sts:AssumeRole
       Path: /
+
+  # This Policy allow the lambda to process the S3 files
+  # Used on the Lambda InterfaceDiagramLambdaS3
   LambdaExecutionPolicy:
     Type: AWS::IAM::Policy
     Properties:
@@ -36,21 +42,55 @@ Resources:
             Resource: "arn:aws:logs:*:*:*"
       Roles:
         - Ref: LambdaExecutionRole
+  
 
+  # Lambda Execution Role that will be referenced on the LambdaApiExecutionPolicy
+  # This Role is used on the Lambda InterfaceDiagramLambda that process a unique json file from a POST API
+  LambdaApiExecutionRole:
+  Type: AWS::IAM::Role
+  Properties:
+    AssumeRolePolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+              - lambda.amazonaws.com
+          Action:
+            - sts:AssumeRole
+    Path: /
 
+  # This posice allows the lambda to log the event on the Cloud Whatch
+  LambdaApiExecutionPolicy:
+  Type: AWS::IAM::Policy
+  Properties:
+    PolicyName: LambdaApiExecutionPolicy
+    PolicyDocument:
+      Version: '2012-10-17'
+      Statement:
+        - Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+          Resource: '*'
+    Roles:
+      - Ref: LambdaApiExecutionRole
 
+  # This lambda will be exposed by an POST API to process a json body and will return a Draw.io URL of the E2E Flow
   InterfaceDiagramLambda:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: InterfaceDiagram
       Handler: src/main/lambda_api_function.lambda_handler
-      Role: arn:aws:iam::543421991131:role/lambda_role  # Replace with your IAM role ARN
+      Role: !GetAtt [LambdaApiExecutionRole, Arn]
       Code:
-        S3Bucket: interface-diagram  # Create this bucket in S3
+        S3Bucket: interface-diagram  # Replace the bucket name by your S3 bucket that contains the lambda zip file
         S3Key: function_api.zip
       Runtime: python3.8
       Timeout: 15
 
+  # This lambda proceess the json files from a S3 and return the Draw.io URLs in a Excel file on a S3 bucket
   InterfaceDiagramLambdaS3:
     Type: AWS::Lambda::Function
     Properties:
@@ -58,23 +98,26 @@ Resources:
       Handler: src/main/lambda_s3_function.lambda_handler
       Role: !GetAtt [LambdaExecutionRole, Arn]
       Code:
-        S3Bucket: interface-diagram  # Create this bucket in S3
+        S3Bucket: interface-diagram  # Replace the bucket name by your S3 bucket that contains the lambda zip file
         S3Key: function_s3.zip
       Runtime: python3.8
       Timeout: 900 # Maximum timeout in seconds
       MemorySize: 1024 # Memory size in MB; 1024 is 1GB
 
+  # API to be used on the InterfaceDiagramLambda
   InterfaceDiagramAPI:
     Type: AWS::ApiGateway::RestApi
     Properties:
       Name: InterfaceDiagramAPI
   
+  # API Deployment to be used on the InterfaceDiagramLambda
   InterfaceDiagramDeployment:
     Type: AWS::ApiGateway::Deployment
     DependsOn: InterfaceDiagramMethod
     Properties:
       RestApiId: !Ref InterfaceDiagramAPI
   
+  # API Method to be used on the InterfaceDiagramLambda
   InterfaceDiagramMethod:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -91,6 +134,7 @@ Resources:
           - Arn: !GetAtt InterfaceDiagramLambda.Arn
       AuthorizationType: NONE
   
+  # API Permission to be used on the InterfaceDiagramLambda
   InterfaceDiagramPermission:
     Type: AWS::Lambda::Permission
     Properties:
@@ -98,6 +142,8 @@ Resources:
       FunctionName: !GetAtt InterfaceDiagramLambda.Arn
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${InterfaceDiagramAPI}/*/POST/"
+  
+  # API Stage to be used on the InterfaceDiagramLambda
   InterfaceDiagramStage:
     Type: AWS::ApiGateway::Stage
     Properties:
@@ -106,6 +152,7 @@ Resources:
       RestApiId: !Ref InterfaceDiagramAPI
       DeploymentId: !Ref InterfaceDiagramDeployment
   
+  # Event to be used on the InterfaceDiagramLambdaS3 to run on a specifc time
   WeeklyLambdaTrigger:
     Type: "AWS::Events::Rule"
     Properties: 
@@ -120,6 +167,7 @@ Resources:
               - "Arn"
           Id: "TargetFunctionV1"
 
+  # Permission Event to be used on the InterfaceDiagramLambdaS3 to run on a specifc time
   PermissionForEventsToInvokeLambda:
     Type: "AWS::Lambda::Permission"
     Properties: 
@@ -132,6 +180,7 @@ Resources:
           - "WeeklyLambdaTrigger"
           - "Arn"
 
+# Output to get the API URL for the Lambda InterfaceDiagramLambda
 Outputs:
   ApiUrl:
     Description: The URL of the API Gateway for this stack
