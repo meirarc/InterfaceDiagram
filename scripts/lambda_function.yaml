@@ -61,7 +61,8 @@ Resources:
         S3Bucket: interface-diagram  # Create this bucket in S3
         S3Key: function_s3.zip
       Runtime: python3.8
-      Timeout: 15
+      Timeout: 900 # Maximum timeout in seconds
+      MemorySize: 1024 # Memory size in MB; 1024 is 1GB
 
   InterfaceDiagramAPI:
     Type: AWS::ApiGateway::RestApi
