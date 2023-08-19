@@ -43,12 +43,7 @@ jobs:
         aws cloudformation delete-stack --stack-name diagram
 
     - name: Wait for stack deletion
-      run: sleep 10
-
-    #- name: Remove local function.zip
-    #  run: |
-    #    rm -f ./scripts/function_s3.zip
-    #    rm -f ./scripts/function_api.zip
+      run: sleep 30
 
     - name: Generate zip files
       run: |
@@ -65,12 +60,3 @@ jobs:
         aws cloudformation create-stack --stack-name diagram \
         --template-url https://interface-diagram.s3.amazonaws.com/lambda_function.yaml \
         --capabilities CAPABILITY_IAM
-
-
-    #- name: Wait for stack creation
-    #  run: sleep 20
-
-    #- name: Retrieve the stack output
-    #  run: |
-    #    stackOutput=$(aws cloudformation describe-stacks --stack-name diagram --query "Stacks[0].Outputs")
-    #    echo $stackOutput
