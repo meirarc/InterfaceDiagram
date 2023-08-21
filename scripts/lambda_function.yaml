@@ -47,35 +47,35 @@ Resources:
   # Lambda Execution Role that will be referenced on the LambdaApiExecutionPolicy
   # This Role is used on the Lambda InterfaceDiagramLambda that process a unique json file from a POST API
   LambdaApiExecutionRole:
-  Type: AWS::IAM::Role
-  Properties:
-    AssumeRolePolicyDocument:
-      Version: '2012-10-17'
-      Statement:
-        - Effect: Allow
-          Principal:
-            Service:
-              - lambda.amazonaws.com
-          Action:
-            - sts:AssumeRole
-    Path: /
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
 
   # This posice allows the lambda to log the event on the Cloud Whatch
   LambdaApiExecutionPolicy:
-  Type: AWS::IAM::Policy
-  Properties:
-    PolicyName: LambdaApiExecutionPolicy
-    PolicyDocument:
-      Version: '2012-10-17'
-      Statement:
-        - Effect: Allow
-          Action:
-            - logs:CreateLogGroup
-            - logs:CreateLogStream
-            - logs:PutLogEvents
-          Resource: '*'
-    Roles:
-      - Ref: LambdaApiExecutionRole
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: LambdaApiExecutionPolicy
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource: '*'
+      Roles:
+        - Ref: LambdaApiExecutionRole
 
   # This lambda will be exposed by an POST API to process a json body and will return a Draw.io URL of the E2E Flow
   InterfaceDiagramLambda:

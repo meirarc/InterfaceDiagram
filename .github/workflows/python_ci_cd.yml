@@ -43,7 +43,7 @@ jobs:
         aws cloudformation delete-stack --stack-name diagram
 
     - name: Wait for stack deletion
-      run: sleep 30
+      run: sleep 50
 
     - name: Generate zip files
       run: |
