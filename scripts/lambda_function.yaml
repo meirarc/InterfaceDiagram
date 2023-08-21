@@ -17,7 +17,7 @@ Resources:
       Path: /
 
   # This Policy allow the lambda to process the S3 files
-  # Used on the Lambda InterfaceDiagramLambdaS3
+  # Used on the Lambda InterfaceDiagramLambdaS3 
   LambdaExecutionPolicy:
     Type: AWS::IAM::Policy
     Properties:
