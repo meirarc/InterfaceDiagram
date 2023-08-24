@@ -8,8 +8,7 @@ from typing import List, Dict, Tuple
 
 from src.main.config import (
     # Constant fill colors
-    # Main system (that drives the interface direction) color
-    FIRST_FILL_COLOR,
+    FIRST_FILL_COLOR,                # Main system color
     MIDDLE_FILL_COLOR,               # Middlewares colors
     GATEWAY_FILL_COLOR,              # Gateway Colors
     OTHER_FILL_COLOR,                # Other Middleware colors
@@ -18,8 +17,7 @@ from src.main.config import (
     CONNECTION_IN_FILL_COLOR,        # Inbound Connection colors
 
     # Constant stroke colors
-    # Main system (that drives the interface direction) color
-    FIRST_STROKE_COLOR,
+    FIRST_STROKE_COLOR,              # Main system color
     MIDDLE_STROKE_COLOR,             # Middlewares colors
     GATEWAY_STROKE_COLOR,            # Gateway Colors
     OTHER_STROKE_COLOR,              # Other Middleware colors
@@ -28,14 +26,15 @@ from src.main.config import (
     CONNECTION_IN_STROKE_COLOR,      # Inbound Connection colors
 
     # Constant size parameters
-    Y_OFFSET,                        # additional space between each protocol
-    PROTOCOL_HEIGHT,                 # protocol height
-    PROTOCOL_WIDTH,                  # protocol width
-    APP_WIDTH,                       # application width
+    Y_OFFSET,                        # Additional space between each protocol
+    PROTOCOL_HEIGHT,                 # Protocol height
+    PROTOCOL_WIDTH,                  # Protocol width
+    APP_WIDTH,                       # Application width
 
     # Constant for the app sequencing
     APP_TYPES                        # Types of applications in scope to the diagrams
 )
+from src.main.encoding_helper import EncodingHelper
 
 
 class InterfaceDiagram:
@@ -43,23 +42,34 @@ class InterfaceDiagram:
     Class to represent and generate an Interface Diagram.
     """
 
-    def __init__(self, interfaces, encoder, log_level=logging.ERROR):
+    def __init__(self,
+                 interfaces: List[Dict],
+                 encoder: EncodingHelper(),
+                 log_level: int = logging.ERROR) -> None:
+        """
+        Initialize the InterfaceDiagram class.
+
+        :param interfaces: List of interfaces to be represented in the diagram.
+        :param encoder: Encoder to write the output file.
+        :param log_level: Logging level. Default is logging.ERROR.
+        """
+
         logging.basicConfig(level=log_level)
         logging.info('Init Class InterfaceDiagram')
 
         # Configuration parameters
         self.config = {
-            'interfaces': interfaces,  # Input File
-            'encoder': encoder         # Encoder to write the out file
+            'interfaces': interfaces,
+            'encoder': encoder
         }
 
         self.list_of_ids = []  # Control of ids
 
-        # Sequencing of application
-        self.app_lists = self.populate_app_lists(self.config['interfaces'])
+        # Initialize application lists and orders
+        self.app_lists = self.populate_app_lists(interfaces)
         self.app_order, self.app_count = self.create_app_order(self.app_lists)
 
-        # Variant size parameters as a dictionary
+        # Initialize size parameters
         self.size_parameters = {
             'y_protocol': 0,
             'y_protocol_start': 40,
@@ -67,7 +77,7 @@ class InterfaceDiagram:
             'page_width': ((self.app_count * 2) - 1) * APP_WIDTH
         }
 
-        # Public xml content
+        # Initialize XML content
         self.xml_content = {
             'mxfile': None,
             'root': None
@@ -75,11 +85,10 @@ class InterfaceDiagram:
 
     def populate_app_lists(self, interfaces: List[Dict]) -> Dict[str, List[str]]:
         """
-        Populate the interfaces object in separated objects by types.
-        app_types = ['sap', 'middleware', 'gateway', 'connected_app'] 
+        Populate the list of applications for each type from the given interfaces.
 
-        :param interfaces: The list of interfaces.
-        :return: A dictionary where the keys are the app types and the values are the app names.
+        :param interfaces: List of interfaces.
+        :return: Dictionary of lists of applications by type.
         """
         logging.info('populate_app_lists(%s)', interfaces)
 
@@ -101,11 +110,10 @@ class InterfaceDiagram:
 
     def create_app_order(self, app_lists: Dict[str, List[str]]) -> Tuple[Dict[str, int], int]:
         """
-        Define the sequence of the applications that will be displayed on the diagrams
-        app_types = ['sap', 'middleware', 'gateway', 'connected_app'] 
+        Create the order in which applications will appear in the diagram.
 
-        :param app_lists: A dictionary where keys are the app_types and values are the app_names.
-        :return: A dictionary where the keys are the app names and the values are their orders.
+        :param app_lists: Dictionary of lists of applications by type.
+        :return: Dictionary of application order and total count of applications.
         """
 
         logging.info('create_app_order()')
