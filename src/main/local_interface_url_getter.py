@@ -10,12 +10,12 @@ import json
 import shutil
 from typing import Dict
 import pandas as pd
-from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl import load_workbook
 
 from src.main.encoding_helper import EncodingHelper
 from src.main.json_parser import JSONParser
 from src.main.interface_diagram import InterfaceDiagram
+from src.main.excel_utils import create_excel_table
 
 
 class LocalInterfaceURLGetter:
@@ -29,7 +29,8 @@ class LocalInterfaceURLGetter:
 
     def __init__(self, source_dir, excel_file):
         """
-        Initializes the LocalInterfaceURLGetter with specified directory paths and an empty DataFrame.
+        Initializes the LocalInterfaceURLGetter with specified directory paths 
+        and an empty DataFrame.
         """
 
         self.file_info = {
@@ -136,13 +137,7 @@ class LocalInterfaceURLGetter:
             self.file_info['excel_file'], index=False, engine='openpyxl')
 
         work_book = load_workbook(self.file_info['excel_file'])
-        work_space = work_book.active
 
-        tab = Table(displayName="Table1", ref=work_space.dimensions)
-        style = TableStyleInfo(name="TableStyleMedium9", showFirstColumn=False,
-                               showLastColumn=False, showRowStripes=True, showColumnStripes=False)
-
-        tab.tableStyleInfo = style
-        work_space.add_table(tab)
+        create_excel_table(work_book)
         work_book.save(self.file_info['excel_file'])
         work_book.close()

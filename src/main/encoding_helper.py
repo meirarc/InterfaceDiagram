@@ -44,7 +44,8 @@ class EncodingHelper:
     def encode_diagram_data(self, data: str) -> str:
         """
         Applies a series of encoding steps to the data, which is expected to be a string.
-        URL-encodes the data, compresses it, base64-encodes it, and then URL-encodes the result again.
+        URL-encodes the data, compresses it, base64-encodes it, 
+        and then URL-encodes the result again.
 
         Args:
             data (str): String data to encode.

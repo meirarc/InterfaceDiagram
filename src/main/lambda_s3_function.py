@@ -4,9 +4,8 @@ AWS Lambda Function for Interface URL Getting
 This Lambda function processes JSON files from an S3 bucket, generates interface diagram URLs,
 and saves the results in an Excel file.
 """
-
-from src.main.s3_interface_url_getter import S3InterfaceURLGetter
 import json
+from src.main.s3_interface_url_getter import S3InterfaceURLGetter
 
 
 def lambda_handler(event, _):

@@ -9,11 +9,12 @@ import io
 import boto3
 import pandas as pd
 from openpyxl import load_workbook
-from openpyxl.worksheet.table import Table, TableStyleInfo
 
 from src.main.encoding_helper import EncodingHelper
 from src.main.json_parser import JSONParser
 from src.main.interface_diagram import InterfaceDiagram
+
+from src.main.excel_utils import create_excel_table
 
 
 class S3InterfaceURLGetter:
@@ -139,16 +140,7 @@ class S3InterfaceURLGetter:
         excel_buffer.seek(0)
 
         work_book = load_workbook(excel_buffer)
-        work_space = work_book.active
-
-        # Define a table and add it to the worksheet
-        tab = Table(displayName="Table1", ref=work_space.dimensions)
-
-        # Add a default style to the table
-        style = TableStyleInfo(name="TableStyleMedium9", showFirstColumn=False,
-                               showLastColumn=False, showRowStripes=True, showColumnStripes=False)
-        tab.tableStyleInfo = style
-        work_space.add_table(tab)
+        create_excel_table(work_book)
 
         # Save the Excel file with the table back to the BytesIO object
         excel_buffer.seek(0)
