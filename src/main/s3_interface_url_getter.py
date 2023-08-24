@@ -6,15 +6,10 @@ processes the contents of these files, and updates an Excel file with the parsed
 If no JSON files are found, a blank record is created in the Excel file.
 """
 import io
-import json
-import os
-
-import pandas as pd
-
 import boto3
-
-from openpyxl.worksheet.table import Table, TableStyleInfo
+import pandas as pd
 from openpyxl import load_workbook
+from openpyxl.worksheet.table import Table, TableStyleInfo
 
 from src.main.encoding_helper import EncodingHelper
 from src.main.json_parser import JSONParser
@@ -23,18 +18,14 @@ from src.main.interface_diagram import InterfaceDiagram
 
 class S3InterfaceURLGetter:
     """
-    A class to update the Interface Diagram URL Excel file.
-
-    This class contains methods to load an Excel file, process JSON files to extract
-    necessary data, clear existing data in the Excel file, and save new records to the
-    Excel file.
+    Class to update the Interface Diagram URL Excel file on S3.
     """
 
-    def __init__(self, source_dir, excel_file):
+    def __init__(self, source_dir: str, excel_file: str):
         """
-        Initializes the DiagramURLUpdater with specified directory paths and an empty DataFrame.
+        Initializes with specified S3 directory paths and an empty DataFrame.
         """
-        # Specify directories
+
         self.file_info = {
             'source_dir': source_dir,
             'backup_dir': f'{source_dir}backup/',
@@ -46,15 +37,71 @@ class S3InterfaceURLGetter:
             'error_file_path': ''
         }
 
+        self.data_frame = pd.DataFrame(
+            columns=['connected_app', 'body', 'file_name', 'url'])
+
         self.parser = JSONParser()
         self.encoder = EncodingHelper()
         self.interfaces = None
 
-        self.data_frame = pd.DataFrame(
-            columns=['connected_app', 'body', 'file_name', 'url'])
-
         if self.file_info['is_s3']:
             self.s3_client = boto3.client('s3')
+
+    def process_json_files(self):
+        """
+        Processes JSON files from the S3 source directory and updates the DataFrame.
+        """
+        if not self.file_info['is_s3']:
+            print(f'Not an S3 directory: {self.file_info["source_dir"]}')
+            return
+
+        # Initialize a flag to track whether any JSON files are found
+        json_files_found = False
+
+        # Process each file in the S3 bucket
+        for filename in self._list_files(self.file_info['source_dir']):
+            if filename.endswith('.json'):
+                json_files_found = True
+                self.process_single_file(filename)
+
+        if not json_files_found:
+            self.data_frame = pd.DataFrame(
+                columns=['connected_app', 'body', 'file_name', 'url'], index=[0]
+            )
+
+    def process_single_file(self, filename: str):
+        """
+        Processes a single JSON file from S3.
+        """
+        clean_file_name = filename.split('/')[-1]
+
+        source_path = f'{self.file_info["source_dir"]}{clean_file_name}'
+        backup_path = f'{self.file_info["backup_dir"]}{clean_file_name}'
+
+        if self._compare_files(source_path, backup_path):
+            data = self._read_json(source_path)
+
+            # Extract connected_app name from data
+            app_name = self.get_connected_app_name(data)
+
+            try:
+                self.interfaces = self.parser.json_to_object(data)
+                diagram = InterfaceDiagram(self.interfaces, self.encoder)
+                url = diagram.generate_diagram_url()
+
+                # Append the new data to the DataFrame
+                new_index = len(self.data_frame)
+                self.data_frame.loc[new_index] = [
+                    app_name, self.parser.dumps(data), clean_file_name, url
+                ]
+                self._move_file(source_path, backup_path)
+
+            except KeyError as key_error:
+                print(f'Error processing file {clean_file_name}.'
+                      f'Skipping due to KeyError: {key_error}')
+
+                error_file_path = f'{self.file_info["error_dir"]}{clean_file_name}'
+                self._move_file(source_path, error_file_path)
 
     def _list_files(self, directory):
         bucket, prefix = self._parse_s3_path(directory)
@@ -131,7 +178,7 @@ class S3InterfaceURLGetter:
             backup_content = pd.read_json(self._read_s3_file(backup_path))
 
             # Compare the content of the two DataFrames
-            if source_content.equals(backup_content):
+            if source_content.equals(backup_content):  # pylint: disable=no-member
                 # If they are identical, delete the source file from S3
                 source_bucket, source_key = self._parse_s3_path(source_path)
                 self.s3_client.delete_object(
@@ -147,111 +194,11 @@ class S3InterfaceURLGetter:
         file_content = response['Body'].read().decode('utf-8')
         return file_content
 
-    def process_json_files(self):
-        """
-        Processes JSON files from the source directory and updates the DataFrame.
-
-        If no JSON files are found in the source directory, a new DataFrame with one
-        empty row is created to represent a blank record.
-        """
-        if not self.file_info['is_s3']:
-            print(
-                f'process_json_files: self.file_info["is_s3"]: {self.file_info["is_s3"]}')
-            return
-
-        # Initialize a variable to track whether any JSON files are found
-        file_control = {
-            'json_files_found': False,
-            'process_file': True
-        }
-
-        # Loop through files in directory
-        for filename in self._list_files(self.file_info['source_dir']):
-            if filename.endswith('.json'):
-
-                clean_file_name = filename.split('/')[-1]
-
-                # Set the flag to True when a JSON file is found
-                file_control['json_files_found'] = True
-
-                # Set source and backup paths for this file
-                self.file_info['source_path'] = f'{self.file_info["source_dir"]}{clean_file_name}'
-                self.file_info['backup_path'] = f'{self.file_info["backup_dir"]}{clean_file_name}'
-
-                # Check if the backup file exists and compare the contents
-                # Flag to decide whether to process the file or not
-                file_control['process_file'] = True
-
-                file_control['process_file'] = self._compare_files(
-                    self.file_info['source_path'], self.file_info['backup_path'])
-
-                # If there's no backup or the contents are different, process the source file
-
-                if file_control['process_file']:
-
-                    data = self._read_json(self.file_info['source_path'])
-
-                    # Initialize app_name to None at the beginning of each iteration
-                    app_name = None
-
-                    # Extract app_name for app_type as 'connected_app'
-                    for item in data:
-                        if item['app_type'] == 'connected_app':
-                            app_name = item['app_name']
-                            break
-
-                    # If app_name is not found, set it to filename
-                    if app_name is None:
-                        app_name = ''
-
-                    # Get the Draw.io URL of the diagram and save it to a file
-                    try:
-                        self.interfaces = self.parser.json_to_object(data)
-
-                        # Initialize the InterfaceDiagram with the data
-                        diagram = InterfaceDiagram(
-                            self.interfaces, self.encoder)
-
-                        url = diagram.generate_diagram_url()  # Generate the diagram
-
-                        # Add the data to the DataFrame
-                        new_index = len(self.data_frame)
-                        self.data_frame.loc[new_index,
-                                            'connected_app'] = app_name
-                        self.data_frame.loc[new_index,
-                                            'body'] = self.parser.dumps(data)
-                        self.data_frame.loc[new_index,
-                                            'file_name'] = clean_file_name
-                        self.data_frame.loc[new_index, 'url'] = url
-
-                        # Move the successfully processed file to backup
-                        self._move_file(
-                            self.file_info['source_path'], self.file_info['backup_path'])
-
-                    except KeyError as key_error:
-                        print(f'Error processing file {clean_file_name}.'
-                              f' Skipping. KeyError: {key_error}')
-
-                        self.file_info['error_file_path'] = os.path.join(
-                            self.file_info['error_dir'], clean_file_name)
-
-                        self._move_file(
-                            self.file_info['source_path'], self.file_info['error_file_path'])
-                        continue
-
-        if not file_control['json_files_found'] or self.data_frame.empty:
-            # Create a new DataFrame with one empty row
-            self.data_frame = pd.DataFrame(
-                columns=['connected_app', 'body', 'file_name', 'url'], index=[0])
-
     def save_results(self):
         """
-        Saves the new records (stored in self.df) to the specified sheet in the Excel file.
+        Saves the new records to the specified Excel file in S3.
         """
-
         if not self.file_info['is_s3']:
-            print(
-                f'save_results: self.file_info["is_s3"]: {self.file_info["is_s3"]}')
+            print(f'Not an S3 directory: {self.file_info["excel_file"]}')
             return
-
         self._save_to_excel(self.data_frame, self.file_info['excel_file'])
