@@ -13,7 +13,10 @@ class JSONParser:
     @staticmethod
     def json_to_object(data: List[Dict]) -> List[Dict]:
         """
-        Transform Json to formated Object
+        Transform JSON to a formatted object.
+
+        :param data: List of dictionaries representing the JSON data.
+        :return: List of dictionaries representing the transformed data.
         """
         logging.info('json_to_object()')
 
