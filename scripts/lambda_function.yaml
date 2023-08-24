@@ -77,6 +77,17 @@ Resources:
       Roles:
         - Ref: LambdaApiExecutionRole
 
+  S3LambdaLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      LayerName: "s3_lambda_layer"
+      Description: "s3_lambda_layer"
+      Content:
+        S3Bucket: "interface-diagram"
+        S3Key: "lambda_s3_layer.zip"
+      CompatibleRuntimes:
+        - python3.8
+
   # This lambda will be exposed by an POST API to process a json body and will return a Draw.io URL of the E2E Flow
   InterfaceDiagramLambda:
     Type: AWS::Lambda::Function
@@ -86,7 +97,7 @@ Resources:
       Role: !GetAtt [LambdaApiExecutionRole, Arn]
       Code:
         S3Bucket: interface-diagram  # Replace the bucket name by your S3 bucket that contains the lambda zip file
-        S3Key: function_api.zip
+        S3Key: lambda_api_function.zip
       Runtime: python3.8
       Timeout: 15
 
@@ -99,7 +110,21 @@ Resources:
       Role: !GetAtt [LambdaExecutionRole, Arn]
       Code:
         S3Bucket: interface-diagram  # Replace the bucket name by your S3 bucket that contains the lambda zip file
-        S3Key: function_s3.zip
+        S3Key: lambda_s3_function.zip
+      Runtime: python3.8
+      Timeout: 900 # Maximum timeout in seconds
+      MemorySize: 1024 # Memory size in MB; 1024 is 1GB
+
+  # This lambda proceess the json files from a S3 and return the Draw.io URLs in a Excel file on a S3 bucket
+  InterfaceDiagramLambdaS3NoPackage:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: InterfaceDiagramS3NoPackage
+      Handler: src/main/lambda_s3_function.lambda_handler
+      Role: !GetAtt [LambdaExecutionRole, Arn]
+      Code:
+        S3Bucket: interface-diagram  # Replace the bucket name by your S3 bucket that contains the lambda zip file
+        S3Key: lambda_s3_function_no_package.zip
       Runtime: python3.8
       Timeout: 900 # Maximum timeout in seconds
       MemorySize: 1024 # Memory size in MB; 1024 is 1GB
