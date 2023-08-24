@@ -80,7 +80,13 @@ with zipfile.ZipFile('./scripts/lambda_s3_layer.zip', 'a') as zipf:
     for root, dirs, files in os.walk(site_packages_path):
         for file in files:
             src_path = os.path.join(root, file)
-            dest_path = os.path.relpath(
+
+            # Adjust the dest_path to match the Lambda layer directory structure
+            relative_path = os.path.relpath(
                 os.path.join(root, file), site_packages_path)
+
+            dest_path = os.path.join(
+                "python/lib/python3.8/site-packages", relative_path)
+
             log_file_paths(zipf, src_path, dest_path)
             zipf.write(src_path, dest_path)
