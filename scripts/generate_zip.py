@@ -72,6 +72,7 @@ def main() -> None:
             ('src/main/interface_diagram.py', 'src/main/interface_diagram.py'),
             ('src/main/encoding_helper.py', 'src/main/encoding_helper.py'),
             ('src/main/json_parser.py', 'src/main/json_parser.py'),
+            ('src/main/excel_utils.py', 'src/main/excel_utils.py'),
             ('src/main/config.py', 'src/main/config.py'),
             ('src/main/s3_interface_url_getter.py',
              'src/main/s3_interface_url_getter.py')
