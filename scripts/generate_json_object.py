@@ -1,5 +1,5 @@
 """
-Script to genetrate the Json file from a CSV file
+Script for converting a CSV file to a JSON file.
 """
 import csv
 import json
@@ -8,15 +8,33 @@ import json
 CSV_FILE = 'src/tests/test_data/interfaces.csv'
 JSON_FILE = 'src/tests/test_data/interfaces.json'
 
-# Read the CSV file and convert to a JSON object
-with open(CSV_FILE, mode='r', encoding='utf-8') as csv_file:
-    reader = csv.DictReader(csv_file)
-    data = list(reader)
 
-json_data = json.dumps(data, indent=4)
+def csv_to_json(csv_file_path, json_file_path):
+    """
+    Converts a CSV file to a JSON file.
 
-# Write the json_data to a local file named interfaces.json
-with open(JSON_FILE, mode='w', encoding='utf-8') as json_file:
-    json_file.write(json_data)
+    Args:
+    csv_file_path (str): The path to the source CSV file.
+    json_file_path (str): The path to the destination JSON file.
+    """
+    # Read the CSV file and convert to a JSON object
+    with open(csv_file_path, mode='r', encoding='utf-8') as csv_file:
+        reader = csv.DictReader(csv_file)
+        data = list(reader)
 
-print("JSON data has been written to interfaces.json")
+    json_data = json.dumps(data, indent=4)
+
+    # Write the json_data to a local file
+    with open(json_file_path, mode='w', encoding='utf-8') as json_file:
+        json_file.write(json_data)
+
+    print(f"JSON data has been written to {json_file_path}")
+
+
+def main():
+    """Main function to run the CSV to JSON conversion."""
+    csv_to_json(CSV_FILE, JSON_FILE)
+
+
+if __name__ == '__main__':
+    main()
