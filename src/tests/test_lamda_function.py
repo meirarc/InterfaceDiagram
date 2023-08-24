@@ -8,7 +8,7 @@ import unittest
 from src.main.lambda_api_function import lambda_handler
 
 
-class TestLambdaFunction(unittest.TestCase):
+class TestLambdaApiFunction(unittest.TestCase):
     """
     This class contains unit tests for the Lambda function.
     """
