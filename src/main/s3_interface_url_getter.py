@@ -104,6 +104,9 @@ class S3InterfaceURLGetter:
                 self._move_file(source_path, error_file_path)
 
     def _list_files(self, directory):
+        """
+        List the files in a S3 directory
+        """
         bucket, prefix = self._parse_s3_path(directory)
         result = self.s3_client.list_objects(Bucket=bucket, Prefix=prefix)
 
@@ -113,6 +116,9 @@ class S3InterfaceURLGetter:
                 yield key
 
     def _read_json(self, filepath):
+        """
+        Read a Json file
+        """
         bucket, key = self._parse_s3_path(filepath)
         response = self.s3_client.get_object(Bucket=bucket, Key=key)
         json_content = response['Body'].read().decode('utf-8')
@@ -120,6 +126,9 @@ class S3InterfaceURLGetter:
         return data_frame.to_dict(orient='records')  # pylint: disable=E1101
 
     def _save_to_excel(self, data_frame, filepath):
+        """
+        save the data frame to an excel file
+        """
         excel_buffer = io.BytesIO()
 
         # Save the DataFrame to the BytesIO object as an Excel file
@@ -157,6 +166,9 @@ class S3InterfaceURLGetter:
             Bucket=bucket, Key=key, Body=excel_buffer)
 
     def _move_file(self, src_path, dest_path):
+        """
+        Move the file from a source to destination path in a S3 bucket
+        """
         src_bucket, src_key = self._parse_s3_path(src_path)
         dest_bucket, dest_key = self._parse_s3_path(dest_path)
 
@@ -165,12 +177,18 @@ class S3InterfaceURLGetter:
         self.s3_client.delete_object(Bucket=src_bucket, Key=src_key)
 
     def _parse_s3_path(self, path):
+        """
+        Parse the S3 path into bucket and key
+        """
         assert path.startswith('s3://')
         path = path[5:]
         bucket, key = path.split('/', 1)
         return bucket, key.lstrip('/')
 
     def _compare_files(self, source_path, backup_path):
+        """
+        compare two files on the s3 bucket
+        """
 
         try:
             # Read the source and backup files into pandas DataFrames
@@ -189,6 +207,9 @@ class S3InterfaceURLGetter:
             return True
 
     def _read_s3_file(self, filepath):
+        """
+        read a file on the s3 bucket
+        """
         bucket, key = self._parse_s3_path(filepath)
         response = self.s3_client.get_object(Bucket=bucket, Key=key)
         file_content = response['Body'].read().decode('utf-8')
