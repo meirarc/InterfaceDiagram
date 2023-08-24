@@ -102,18 +102,18 @@ Resources:
       Timeout: 15
 
   # This lambda proceess the json files from a S3 and return the Draw.io URLs in a Excel file on a S3 bucket
-  InterfaceDiagramLambdaS3:
-    Type: AWS::Lambda::Function
-    Properties:
-      FunctionName: InterfaceDiagramS3
-      Handler: src/main/lambda_s3_function.lambda_handler
-      Role: !GetAtt [LambdaExecutionRole, Arn]
-      Code:
-        S3Bucket: interface-diagram  # Replace the bucket name by your S3 bucket that contains the lambda zip file
-        S3Key: lambda_s3_function.zip
-      Runtime: python3.8
-      Timeout: 900 # Maximum timeout in seconds
-      MemorySize: 1024 # Memory size in MB; 1024 is 1GB
+  #InterfaceDiagramLambdaS3:
+  #  Type: AWS::Lambda::Function
+  #  Properties:
+  #    FunctionName: InterfaceDiagramS3
+  #    Handler: src/main/lambda_s3_function.lambda_handler
+  #    Role: !GetAtt [LambdaExecutionRole, Arn]
+  #    Code:
+  #      S3Bucket: interface-diagram  # Replace the bucket name by your S3 bucket that contains the lambda zip file
+  #      S3Key: lambda_s3_function.zip
+  #    Runtime: python3.8
+  #    Timeout: 900 # Maximum timeout in seconds
+  #    MemorySize: 1024 # Memory size in MB; 1024 is 1GB
 
   # This lambda proceess the json files from a S3 and return the Draw.io URLs in a Excel file on a S3 bucket
   InterfaceDiagramLambdaS3NoPackage:
@@ -190,7 +190,8 @@ Resources:
         - 
           Arn: 
             Fn::GetAtt: 
-              - "InterfaceDiagramLambdaS3"
+              #- "InterfaceDiagramLambdaS3"
+              - "InterfaceDiagramLambdaS3NoPackage"
               - "Arn"
           Id: "TargetFunctionV1"
 
@@ -199,7 +200,8 @@ Resources:
     Type: "AWS::Lambda::Permission"
     Properties: 
       FunctionName: 
-        Ref: "InterfaceDiagramLambdaS3"
+        #Ref: "InterfaceDiagramLambdaS3"
+        Ref: "InterfaceDiagramLambdaS3NoPackage"
       Action: "lambda:InvokeFunction"
       Principal: "events.amazonaws.com"
       SourceArn: 
