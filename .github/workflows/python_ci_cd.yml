@@ -27,9 +27,9 @@ jobs:
     #- name: Run pylint
     #  run: pylint src/main/
       
-    #- name: Run unittest
-    #  run: |
-    #    python -m unittest discover src/tests/
+    - name: Run unittest
+      run: |
+        python -m unittest discover src/tests/
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
