@@ -51,10 +51,10 @@ jobs:
 
     - name: Upload files to S3
       run: |
-        aws s3 cp ./scripts/function_s3.zip s3://interface-diagram/lambda_api_function.zip
-        aws s3 cp ./scripts/function_api.zip s3://interface-diagram/lambda_s3_function.zip
-        aws s3 cp ./scripts/function_api.zip s3://interface-diagram/lambda_s3_function_no_package.zip
-        aws s3 cp ./scripts/function_api.zip s3://interface-diagram/lambda_s3_layer.zip
+        aws s3 cp ./scripts/lambda_api_function.zip s3://interface-diagram/lambda_api_function.zip
+        aws s3 cp ./scripts/lambda_s3_function.zip s3://interface-diagram/lambda_s3_function.zip
+        aws s3 cp ./scripts/lambda_s3_function_no_package.zip s3://interface-diagram/lambda_s3_function_no_package.zip
+        aws s3 cp ./scripts/lambda_s3_layer.zip s3://interface-diagram/lambda_s3_layer.zip
         aws s3 cp ./scripts/lambda_function.yaml s3://interface-diagram/lambda_function.yaml
 
     - name: Create new stack
