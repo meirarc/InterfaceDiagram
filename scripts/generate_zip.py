@@ -8,7 +8,7 @@ from typing import List, Tuple
 
 # Constants for ZIP file names
 API_ZIP = './scripts/lambda_api_function.zip'
-S3_NO_PACKAGE_ZIP = './scripts/lambda_s3_function_no_package.zip'
+S3_NO_PACKAGE_ZIP = './scripts/lambda_s3_function.zip'
 S3_LAYER_ZIP = './scripts/lambda_s3_layer.zip'
 
 
