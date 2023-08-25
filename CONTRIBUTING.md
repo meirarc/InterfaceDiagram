@@ -1,4 +1,4 @@
-# Contributing to [Your Project]
+# Contributing to Interface Diagram
 
 First off, thank you for considering contributing to Interfaca Diagram. It's people like you that make this project such a great tool.
 
