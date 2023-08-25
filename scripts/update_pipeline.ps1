@@ -4,10 +4,7 @@ aws cloudformation delete-stack --stack-name diagram
 
 # 2. Remove the local file that contains the code of the lambda
 Write-Host "Removing local function.zip..."
-Remove-Item -Path .\scripts\function.zip
-
 Remove-Item -Path .\scripts\lambda_api_function.zip
-#Remove-Item -Path .\scripts\lambda_s3_function.zip
 Remove-Item -Path .\scripts\lambda_s3_function_no_package.zip
 Remove-Item -Path .\scripts\lambda_s3_layer.zip
 
@@ -18,8 +15,7 @@ python .\scripts\generate_zip.py
 # 4. Upload function.zip and lambda_function.yaml to S3
 Write-Host "Uploading files to S3..."
 aws s3 cp ./scripts/lambda_api_function.zip s3://interface-diagram/lambda_api_function.zip
-# aws s3 cp ./scripts/lambda_s3_function.zip s3://interface-diagram/lambda_s3_function.zip
-aws s3 cp ./scripts/lambda_s3_function_no_package.zip s3://interface-diagram/lambda_s3_function_no_package.zip
+aws s3 cp ./scripts/lambda_s3_function_no_package.zip s3://interface-diagram/lambda_s3_function.zip
 aws s3 cp ./scripts/lambda_s3_layer.zip s3://interface-diagram/lambda_s3_layer.zip
 aws s3 cp ./scripts/lambda_function.yaml s3://interface-diagram/lambda_function.yaml
 
