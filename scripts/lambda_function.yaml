@@ -1,8 +1,9 @@
 Resources:
 
-  # Lambda Execution Role that will be referenced on the LambdaExecutionPolicy to extend the access to S3
-  # This Role is used on the Lambda InterfaceDiagramLambdaS3 to process S3 files
-  LambdaExecutionRole:
+  # ---------- IAM Roles ----------
+
+  # IAM Role for S3 Lambda function
+  LambdaS3ExecutionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -16,9 +17,26 @@ Resources:
               - sts:AssumeRole
       Path: /
 
-  # This Policy allow the lambda to process the S3 files
-  # Used on the Lambda InterfaceDiagramLambdaS3 
-  LambdaExecutionPolicy:
+  # IAM Role for API Lambda function
+  LambdaApiExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+
+  
+  # ---------- IAM Policies ----------
+  
+  # Policy to grant S3 access to Lambda
+  LambdaS3ExecutionPolicy:
     Type: AWS::IAM::Policy
     Properties:
       PolicyName: LambdaS3Access
@@ -41,26 +59,9 @@ Resources:
               - logs:PutLogEvents
             Resource: "arn:aws:logs:*:*:*"
       Roles:
-        - Ref: LambdaExecutionRole
+        - Ref: LambdaS3ExecutionRole
   
-
-  # Lambda Execution Role that will be referenced on the LambdaApiExecutionPolicy
-  # This Role is used on the Lambda InterfaceDiagramLambda that process a unique json file from a POST API
-  LambdaApiExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Path: /
-
-  # This posice allows the lambda to log the event on the Cloud Whatch
+  # Policy to grant logging permissions to API Lambda
   LambdaApiExecutionPolicy:
     Type: AWS::IAM::Policy
     Properties:
@@ -77,6 +78,10 @@ Resources:
       Roles:
         - Ref: LambdaApiExecutionRole
 
+  
+  # ---------- Lambda Layers ----------
+  
+  # Lambda Layer for S3 Lambda function
   S3LambdaLayer:
     Type: AWS::Lambda::LayerVersion
     Properties:
@@ -87,65 +92,50 @@ Resources:
         S3Key: "lambda_s3_layer.zip"
       CompatibleRuntimes:
         - python3.8
-
-  # This lambda will be exposed by an POST API to process a json body and will return a Draw.io URL of the E2E Flow
-  InterfaceDiagramLambda:
+  
+  
+  # ---------- Lambda Functions ----------
+  
+  # API Lambda function
+  InterfaceDiagramApiLambda:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: InterfaceDiagram
+      FunctionName: api_interface_diagram
       Handler: src/main/lambda_api_function.lambda_handler
       Role: !GetAtt [LambdaApiExecutionRole, Arn]
       Code:
-        S3Bucket: interface-diagram  # Replace the bucket name by your S3 bucket that contains the lambda zip file
+        S3Bucket: interface-diagram
         S3Key: lambda_api_function.zip
       Runtime: python3.8
       Timeout: 15
 
-  # This lambda proceess the json files from a S3 and return the Draw.io URLs in a Excel file on a S3 bucket
-  #InterfaceDiagramLambdaS3:
-  #  Type: AWS::Lambda::Function
-  #  Properties:
-  #    FunctionName: InterfaceDiagramS3
-  #    Handler: src/main/lambda_s3_function.lambda_handler
-  #    Role: !GetAtt [LambdaExecutionRole, Arn]
-  #    Code:
-  #      S3Bucket: interface-diagram  # Replace the bucket name by your S3 bucket that contains the lambda zip file
-  #      S3Key: lambda_s3_function.zip
-  #    Runtime: python3.8
-  #    Timeout: 900 # Maximum timeout in seconds
-  #    MemorySize: 1024 # Memory size in MB; 1024 is 1GB
-
-  # This lambda proceess the json files from a S3 and return the Draw.io URLs in a Excel file on a S3 bucket
-  InterfaceDiagramLambdaS3NoPackage:
+  # S3 Lambda function
+  InterfaceDiagramS3Lambda:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: InterfaceDiagramS3NoPackage
+      FunctionName: s3_interface_diagram
       Handler: src/main/lambda_s3_function.lambda_handler
-      Role: !GetAtt [LambdaExecutionRole, Arn]
+      Role: !GetAtt [LambdaS3ExecutionRole, Arn]
       Code:
         S3Bucket: interface-diagram  # Replace the bucket name by your S3 bucket that contains the lambda zip file
-        S3Key: lambda_s3_function_no_package.zip
+        S3Key: lambda_s3_function.zip
       Runtime: python3.8
       Timeout: 900 # Maximum timeout in seconds
       MemorySize: 1024 # Memory size in MB; 1024 is 1GB
       Layers:
         - !Ref S3LambdaLayer
 
-  # API to be used on the InterfaceDiagramLambda
+  
+  # ---------- API Gateway ----------
+
+  # API definition
   InterfaceDiagramAPI:
     Type: AWS::ApiGateway::RestApi
     Properties:
       Name: InterfaceDiagramAPI
   
-  # API Deployment to be used on the InterfaceDiagramLambda
-  InterfaceDiagramDeployment:
-    Type: AWS::ApiGateway::Deployment
-    DependsOn: InterfaceDiagramMethod
-    Properties:
-      RestApiId: !Ref InterfaceDiagramAPI
-  
-  # API Method to be used on the InterfaceDiagramLambda
-  InterfaceDiagramMethod:
+  # API method for POST
+  InterfaceDiagramApiMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       HttpMethod: POST
@@ -158,29 +148,39 @@ Resources:
         Type: AWS_PROXY
         Uri: !Sub 
           - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Arn}/invocations"
-          - Arn: !GetAtt InterfaceDiagramLambda.Arn
+          - Arn: !GetAtt InterfaceDiagramApiLambda.Arn
       AuthorizationType: NONE
   
-  # API Permission to be used on the InterfaceDiagramLambda
-  InterfaceDiagramPermission:
+  # API Deployment
+  InterfaceDiagramApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: InterfaceDiagramApiMethod
+    Properties:
+      RestApiId: !Ref InterfaceDiagramAPI
+  
+  # API Permission for Lambda
+  InterfaceDiagramApiPermission:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
-      FunctionName: !GetAtt InterfaceDiagramLambda.Arn
+      FunctionName: !GetAtt InterfaceDiagramApiLambda.Arn
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${InterfaceDiagramAPI}/*/POST/"
   
-  # API Stage to be used on the InterfaceDiagramLambda
-  InterfaceDiagramStage:
+  # API Stage
+  InterfaceDiagramApiStage:
     Type: AWS::ApiGateway::Stage
     Properties:
       StageName: Prod
       Description: Production Stage
       RestApiId: !Ref InterfaceDiagramAPI
-      DeploymentId: !Ref InterfaceDiagramDeployment
+      DeploymentId: !Ref InterfaceDiagramApiDeployment
   
-  # Event to be used on the InterfaceDiagramLambdaS3 to run on a specifc time
-  WeeklyLambdaTrigger:
+
+  # ---------- Event Rules ----------
+  
+  # Cron event for S3 Lambda
+  WeeklyS3LambdaTrigger:
     Type: "AWS::Events::Rule"
     Properties: 
       Description: "Trigger my Lambda function every weekday at 10:00 AM Madrid time"
@@ -190,26 +190,26 @@ Resources:
         - 
           Arn: 
             Fn::GetAtt: 
-              #- "InterfaceDiagramLambdaS3"
-              - "InterfaceDiagramLambdaS3NoPackage"
+              - "InterfaceDiagramS3Lambda"
               - "Arn"
           Id: "TargetFunctionV1"
 
-  # Permission Event to be used on the InterfaceDiagramLambdaS3 to run on a specifc time
-  PermissionForEventsToInvokeLambda:
+  # Permission for Cron event to invoke S3 Lambda
+  PermissionForEventsToInvokeS3Lambda:
     Type: "AWS::Lambda::Permission"
     Properties: 
       FunctionName: 
-        #Ref: "InterfaceDiagramLambdaS3"
-        Ref: "InterfaceDiagramLambdaS3NoPackage"
+        Ref: "InterfaceDiagramS3Lambda"
       Action: "lambda:InvokeFunction"
       Principal: "events.amazonaws.com"
       SourceArn: 
         Fn::GetAtt: 
-          - "WeeklyLambdaTrigger"
+          - "WeeklyS3LambdaTrigger"
           - "Arn"
 
-# Output to get the API URL for the Lambda InterfaceDiagramLambda
+
+# ---------- Outputs ----------
+
 Outputs:
   ApiUrl:
     Description: The URL of the API Gateway for this stack
