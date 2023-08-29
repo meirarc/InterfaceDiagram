@@ -6,6 +6,9 @@ processes the contents of these files, and updates an Excel file with the parsed
 If no JSON files are found, a blank record is created in the Excel file.
 """
 import io
+
+from typing import Dict
+
 import boto3
 import pandas as pd
 from openpyxl import load_workbook
@@ -103,6 +106,15 @@ class S3InterfaceURLGetter:
 
                 error_file_path = f'{self.file_info["error_dir"]}{clean_file_name}'
                 self._move_file(source_path, error_file_path)
+
+    def get_connected_app_name(self, data: Dict) -> str:
+        """
+        Extracts the connected app name from the data.
+        """
+        for item in data:
+            if item['app_type'] == 'connected_app':
+                return item['app_name']
+        return ''
 
     def _list_files(self, directory):
         """
