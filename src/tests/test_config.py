@@ -5,6 +5,7 @@ import unittest
 import re
 from src.main import config
 
+
 class TestConfigConstants(unittest.TestCase):
     """
     This class test the config.py file that contains a series of constants for
@@ -20,7 +21,6 @@ class TestConfigConstants(unittest.TestCase):
         self.assertTrue(hasattr(config, 'MIDDLE_FILL_COLOR'))
         self.assertTrue(hasattr(config, 'PROTOCOL_HEIGHT'))
         self.assertTrue(hasattr(config, 'APP_WIDTH'))
-        self.assertTrue(hasattr(config, 'APP_TYPES'))
 
     def test_valid_hex_color_codes(self):
         """
@@ -44,6 +44,7 @@ class TestConfigConstants(unittest.TestCase):
         self.assertTrue(pattern.match(config.LAST_STROKE_COLOR))
         self.assertTrue(pattern.match(config.CONNECTION_OUT_STROKE_COLOR))
         self.assertTrue(pattern.match(config.CONNECTION_IN_STROKE_COLOR))
+
 
 # Run the tests
 if __name__ == '__main__':

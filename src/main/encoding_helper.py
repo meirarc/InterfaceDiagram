@@ -5,15 +5,12 @@ import base64
 import zlib
 from urllib.parse import quote
 
-from src.main.logging_utils import debug_logging
-
 
 class EncodingHelper:
     """
     This class is used to provide encoding functions on file conversion
     """
 
-    @debug_logging
     def js_btoa(self, data: bytes) -> bytes:
         """
         Simulates the JavaScript btoa function.
@@ -27,7 +24,6 @@ class EncodingHelper:
         """
         return base64.b64encode(data)
 
-    @debug_logging
     def pako_deflate_raw(self, data: bytes) -> bytes:
         """
         Compresses data using zlib with specific parameters.
@@ -45,7 +41,6 @@ class EncodingHelper:
         compressed_data += compress.flush()
         return compressed_data
 
-    @debug_logging
     def encode_diagram_data(self, data: str) -> str:
         """
         Applies a series of encoding steps to the data, which is expected to be a string.

@@ -2,7 +2,10 @@
 This module is used to test the JSONParser class and functions
 """
 import unittest
+import json
 from src.main.json_parser import JSONParser
+from src.main.data_definitions import SourceStructure, InterfaceStructure, App, Connection, Interface
+
 
 class TestJSONParser(unittest.TestCase):
     """
@@ -30,50 +33,32 @@ class TestJSONParser(unittest.TestCase):
 
         # Expected output data
         expected_output = [
-            {
-                'code_id': '1',
-                'direction': 'Inbound',
-                'apps': [
-                    {
-                        'ERP': 'SAP',
-                        'format': 'XML',
-                        'connection': {
-                            'app': 'CRM',
-                            'detail': 'Direct',
-                            'interface': {
-                                'id': '123',
-                                'url': 'http://example.com'
-                            }
-                        }
-                    }
+            InterfaceStructure(
+                code_id='1',
+                direction='Inbound',
+                apps=[
+                    App(
+                        app_type='ERP',
+                        app_name='SAP',
+                        format='XML',
+                        connection=Connection(
+                            app='CRM',
+                            detail='Direct'),
+                        interface=Interface(
+                            interface_id='123',
+                            interface_url='http://example.com'
+                        )
+                    )
                 ]
-            }
-        ]
+            )]
 
         # Call the json_to_object method
-        actual_output = JSONParser.json_to_object(input_data)
+        actual_output = JSONParser.json_to_object(
+            [SourceStructure(**item) for item in input_data])
 
         # Assert that the actual output is equal to the expected output
         self.assertEqual(actual_output, expected_output)
 
-    def test_parse(self):
-        """
-        Perform a simple test on to parse a json object
-        """
-        # Sample JSON string
-        json_data = '{"name": "John", "age": 30, "city": "New York"}'
-
-        # Expected Python object
-        expected_output = {'name': 'John', 'age': 30, 'city': 'New York'}
-
-        # Create an instance of JSONParser
-        parser = JSONParser()
-
-        # Call the parse method
-        actual_output = parser.parse(json_data)
-
-        # Assert that the actual output is equal to the expected output
-        self.assertEqual(actual_output, expected_output)
 
 # Run the tests
 if __name__ == '__main__':

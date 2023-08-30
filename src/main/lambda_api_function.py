@@ -4,8 +4,11 @@ AWS Lambda Function: InterfaceDiagram
 This Lambda function handles the generation of an interface diagram URL based on
 the input JSON data.
 """
-from src.main.interface_diagram import InterfaceDiagram
+import json
+from src.main.data_definitions import SourceStructure
 from src.main.json_parser import JSONParser
+
+from src.main.interface_diagram import InterfaceDiagram
 from src.main.encoding_helper import EncodingHelper
 from src.main.logging_utils import configure_logging
 
@@ -21,21 +24,15 @@ def lambda_handler(event, _):
 
     configure_logging()
 
-    # Initialize JSON parser and EncodingHelper
-    parser = JSONParser()
     encoder = EncodingHelper()
+    data = json.loads(event['body'])
 
-    # Parse the JSON data from the event body
-    data = parser.parse(event['body'])
+    interfaces = JSONParser.json_to_object(
+        [SourceStructure(**item) for item in data])
 
-    # Convert the parsed data to the required object format
-    interfaces = parser.json_to_object(data)
-
-    # Initialize the InterfaceDiagram class and generate the diagram URL
     diagram = InterfaceDiagram(interfaces, encoder)
     url = diagram.generate_diagram_url()
 
-    # Prepare the Lambda function response
     result = {
         "isBase64Encoded": False,
         "statusCode": 200,

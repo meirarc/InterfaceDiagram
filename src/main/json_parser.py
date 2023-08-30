@@ -1,10 +1,16 @@
 """
 This module provides functionalities to parse JSON data.
 """
-from typing import List, Dict
-import json
+from typing import List
+
+from src.main.data_definitions import (
+    SourceStructure, Connection, Interface,
+    App, InterfaceStructure
+)
 
 from src.main.logging_utils import debug_logging
+
+# pylint: disable=too-few-public-methods
 
 
 class JSONParser:
@@ -14,56 +20,33 @@ class JSONParser:
 
     @staticmethod
     @debug_logging
-    def json_to_object(data: List[Dict]) -> List[Dict]:
+    def json_to_object(data: List[SourceStructure]) -> List[InterfaceStructure]:
         """
         Transform JSON to a formatted object.
 
         :param data: List of dictionaries representing the JSON data.
         :return: List of dictionaries representing the transformed data.
         """
+        transformed_data = []
 
-        interfaces = {}
-        for row in data:
-            code_id = row['code_id']
+        for initial in data:
+            # Create nested objects
+            connection = Connection(
+                app=initial.connection_app, detail=initial.connection_detail)
 
-            if code_id not in interfaces:
-                interfaces[code_id] = {
-                    'code_id': code_id,
-                    'direction': row['direction'],
-                    'apps': []
-                }
+            interface = Interface(interface_id=initial.interface_id,
+                                  interface_url=initial.interface_url)
+            app = App(
+                app_type=initial.app_type,
+                app_name=initial.app_name,
+                format=initial.format,
+                connection=connection,
+                interface=interface
+            )
 
-            app = {row['app_type']: row['app_name'], 'format': row['format']}
-            if row['connection_app']:
-                connection = {'app': row['connection_app'],
-                              'detail': row['connection_detail']}
+            # Create FinalData object
+            final_data = InterfaceStructure(
+                code_id=initial.code_id, direction=initial.direction, apps=[app])
+            transformed_data.append(final_data)
 
-                if row['interface_id']:
-                    connection['interface'] = {
-                        'id': row['interface_id'],
-                        'url': row['interface_url']
-                    }
-
-                app['connection'] = connection
-            interfaces[code_id]['apps'].append(app)
-        return list(interfaces.values())
-
-    @debug_logging
-    def parse(self, data):
-        """
-        Parse the given JSON data.
-
-        :param data: JSON data to be parsed
-        :return: Parsed data
-        """
-        return json.loads(data)
-
-    @debug_logging
-    def dumps(self, data):
-        """
-        Dumps the given JSON data.
-
-        :param data: JSON data to be parsed
-        :return: Dumps data
-        """
-        return json.dumps(data)
+        return transformed_data

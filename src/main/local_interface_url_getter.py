@@ -15,6 +15,8 @@ from openpyxl import load_workbook
 from src.main.encoding_helper import EncodingHelper
 from src.main.json_parser import JSONParser
 from src.main.interface_diagram import InterfaceDiagram
+
+from src.main.data_definitions import SourceStructure
 from src.main.excel_utils import create_excel_table
 
 from src.main.logging_utils import debug_logging
@@ -45,7 +47,6 @@ class LocalInterfaceURLGetter:
             'error_file_path': ''
         }
 
-        self.parser = JSONParser()
         self.encoder = EncodingHelper()
         self.interfaces = None
 
@@ -90,7 +91,9 @@ class LocalInterfaceURLGetter:
                 data = json.load(file)
 
             app_name = self.get_connected_app_name(data)
-            self.interfaces = self.parser.json_to_object(data)
+
+            self.interfaces = JSONParser.json_to_object(
+                [SourceStructure(**item) for item in data])
 
             diagram = InterfaceDiagram(self.interfaces, self.encoder)
             url = diagram.generate_diagram_url()
@@ -134,7 +137,7 @@ class LocalInterfaceURLGetter:
         """
         new_index = len(self.data_frame)
         self.data_frame.loc[new_index] = [
-            app_name, self.parser.dumps(data), filename, url]
+            app_name, json.dumps(data), filename, url]
 
     @debug_logging
     def save_results(self):

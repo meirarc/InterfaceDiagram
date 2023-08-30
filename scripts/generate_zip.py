@@ -61,8 +61,10 @@ def main() -> None:
             ('src/main/interface_diagram.py', 'src/main/interface_diagram.py'),
             ('src/main/encoding_helper.py', 'src/main/encoding_helper.py'),
             ('src/main/logging_utils.py', 'src/main/logging_utils.py'),
+            ('src/main/data_definitions', 'src/main/data_definitions'),
             ('src/main/json_parser.py', 'src/main/json_parser.py'),
             ('src/main/config.py', 'src/main/config.py')
+
 
         ]
     )
@@ -74,6 +76,7 @@ def main() -> None:
             ('src/main/interface_diagram.py', 'src/main/interface_diagram.py'),
             ('src/main/encoding_helper.py', 'src/main/encoding_helper.py'),
             ('src/main/logging_utils.py', 'src/main/logging_utils.py'),
+            ('src/main/data_definitions', 'src/main/data_definitions'),
             ('src/main/json_parser.py', 'src/main/json_parser.py'),
             ('src/main/excel_utils.py', 'src/main/excel_utils.py'),
             ('src/main/config.py', 'src/main/config.py'),

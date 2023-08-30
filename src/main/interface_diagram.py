@@ -9,6 +9,8 @@ from typing import List, Dict, Tuple
 from src.main.encoding_helper import EncodingHelper
 from src.main.logging_utils import debug_logging
 
+from src.main.data_definitions import InterfaceStructure
+
 from src.main.config import (
     # Constant fill colors
     FIRST_FILL_COLOR,                # Main system color
@@ -33,9 +35,6 @@ from src.main.config import (
     PROTOCOL_HEIGHT,                 # Protocol height
     PROTOCOL_WIDTH,                  # Protocol width
     APP_WIDTH,                       # Application width
-
-    # Constant for the app sequencing
-    APP_TYPES                        # Types of applications in scope to the diagrams
 )
 
 
@@ -43,12 +42,10 @@ class InterfaceDiagram:
     """
     Class to represent and generate an Interface Diagram.
     """
-
     @debug_logging
     def __init__(self,
-                 interfaces: List[Dict],
-                 encoder: EncodingHelper(),
-                 ) -> None:
+                 interfaces: List[InterfaceStructure],
+                 encoder: EncodingHelper()) -> None:
         """
         Initialize the InterfaceDiagram class.
 
@@ -69,11 +66,15 @@ class InterfaceDiagram:
         self.app_lists = self.populate_app_lists(interfaces)
         self.app_order, self.app_count = self.create_app_order(self.app_lists)
 
+        # Count the unique code_ids to get the correct number of rows
+        unique_code_ids = len(
+            set(interface.code_id for interface in interfaces))
+
         # Initialize size parameters
         self.size_parameters = {
             'y_protocol': 0,
             'y_protocol_start': 40,
-            'app_height': 80 + (PROTOCOL_HEIGHT + Y_OFFSET) * (len(self.config['interfaces']) - 1),
+            'app_height': 80 + (PROTOCOL_HEIGHT + Y_OFFSET) * (unique_code_ids - 1),
             'page_width': ((self.app_count * 2) - 1) * APP_WIDTH
         }
 
@@ -84,7 +85,7 @@ class InterfaceDiagram:
         }
 
     @debug_logging
-    def populate_app_lists(self, interfaces: List[Dict]) -> Dict[str, List[str]]:
+    def populate_app_lists(self, interfaces: List[InterfaceStructure]) -> Dict[str, List[str]]:
         """
         Populate the list of applications for each type from the given interfaces.
 
@@ -101,11 +102,13 @@ class InterfaceDiagram:
         }
 
         for interface in interfaces:
-            for app in interface['apps']:
-                for app_type, app_names in app_lists.items():
-                    if app_type[:-1] in app and app[app_type[:-1]] not in app_names:
-                        app_names.append(app[app_type[:-1]])
-
+            for app in interface.apps:
+                for app_type_plural, app_names in app_lists.items():
+                    app_type_singular = app_type_plural[:-1]
+                    # Compare the app_type with the singular form of keys in app_lists
+                    if app.app_type == app_type_singular:
+                        if app.app_name and app.app_name not in app_names:
+                            app_names.append(app.app_name)
         return app_lists
 
     @debug_logging
@@ -175,7 +178,6 @@ class InterfaceDiagram:
         :param fill_color: The color used to fill the shape.
         :param stroke_color: The color used for the outline of the shape.
         """
-
         if app_name not in self.app_order:
             logging.error('App name %s is not in the app order.', app_name)
             return
@@ -242,7 +244,6 @@ class InterfaceDiagram:
             return
 
         object_id = f'{direction}_{app_name}_{row}'
-
         # Ensure that each ID is unique
         if object_id not in self.list_of_ids:
             self.list_of_ids.append(object_id)
@@ -336,7 +337,6 @@ class InterfaceDiagram:
         target = detail_params['target']
         row = detail_params['row']
         text = detail_params['text']
-        # direction = detail_params['direction']
 
         object_id = f'detail_{source}_{target}_{row}'
 
@@ -386,7 +386,6 @@ class InterfaceDiagram:
         row = link_params['row']
         text = link_params['text']
         url = link_params['url']
-        # direction = link_params['direction']
 
         object_id = f'ricefw_{source}_{target}_{row}'
 
@@ -428,159 +427,116 @@ class InterfaceDiagram:
         """
         Loop into the interfaces to find all the applications and protocols 
         that need to be created on the draw.io diagram
-
         Create the application shapes in the selected order 
-
         Create the inbound and outbound protocols for each interface/application
-
         The combination of an application and the inbound and outbound protocols 
-        results in a instance
+        results in an instance
         """
 
-        for row, interface in enumerate(self.config['interfaces']):
+        color_map = {
+            'sap_app': (FIRST_FILL_COLOR, FIRST_STROKE_COLOR),
+            'middleware': (MIDDLE_FILL_COLOR, MIDDLE_STROKE_COLOR),
+            'gateway': (GATEWAY_FILL_COLOR, GATEWAY_STROKE_COLOR),
+            'other_middleware': (OTHER_FILL_COLOR, OTHER_STROKE_COLOR),
+            'connected_app': (LAST_FILL_COLOR, LAST_STROKE_COLOR)
+        }
+
+        current_code_id = None
+        row = -1  # Initialize to -1 so that the first iteration sets it to 0
+
+        for interface in self.config['interfaces']:
+
+            # Check if the code_id has changed
+            if interface.code_id != current_code_id:
+                row += 1
+                current_code_id = interface.code_id
+
             self.size_parameters["y_protocol"] = (self.size_parameters["y_protocol_start"] +
                                                   (PROTOCOL_HEIGHT + Y_OFFSET) * row)
 
-            for _, data in enumerate(interface['apps']):
-                if 'sap_app' in data:
-                    self.create_app(data['sap_app'],
-                                    FIRST_FILL_COLOR, FIRST_STROKE_COLOR)
+            for app in interface.apps:
+
+                app_type = app.app_type
+                app_name = app.app_name
+                format_value = app.format
+
+                fill_color, stroke_color = color_map.get(
+                    app_type, ('#FFFFFF', '#000000'))
+
+                self.create_app(app_name, fill_color, stroke_color)
+
+                if app_type in ['middleware', 'gateway', 'other_middleware']:
+                    directions = ["out", "in"]
+                else:
+                    directions = ["out"] if app_type == 'sap_app' else ["in"]
+
+                for direction in directions:
                     self.create_protocol({
-                        'app_name': data["sap_app"],
-                        'direction': "out",
+                        'app_name': app_name,
+                        'direction': direction,
                         'row': row,
-                        'format': data["format"],
-                        'position': 70
-                    })
-
-                elif 'middleware' in data:
-                    self.create_app(data['middleware'],
-                                    MIDDLE_FILL_COLOR, MIDDLE_STROKE_COLOR)
-
-                    self.create_protocol({
-                        'app_name': data["middleware"],
-                        'direction': "out",
-                        'row': row,
-                        'format': '',
-                        'position': 70
-                    })
-
-                    self.create_protocol({
-                        'app_name': data["middleware"],
-                        'direction': "in",
-                        'row': row,
-                        'format': '',
-                        'position': -10
-                    })
-
-                elif 'gateway' in data:
-                    self.create_app(
-                        data['gateway'], GATEWAY_FILL_COLOR, GATEWAY_STROKE_COLOR)
-
-                    self.create_protocol({
-                        'app_name': data["gateway"],
-                        'direction': "out",
-                        'row': row,
-                        'format': '',
-                        'position': 70
-                    })
-
-                    self.create_protocol({
-                        'app_name': data["gateway"],
-                        'direction': "in",
-                        'row': row,
-                        'format': '',
-                        'position': -10
-                    })
-
-                elif 'other_middleware' in data:
-                    self.create_app(data['other_middleware'],
-                                    OTHER_FILL_COLOR, OTHER_STROKE_COLOR)
-
-                    self.create_protocol({
-                        'app_name': data["other_middleware"],
-                        'direction': "out",
-                        'row': row,
-                        'format': '',
-                        'position': 70
-                    })
-
-                    self.create_protocol({
-                        'app_name': data["other_middleware"],
-                        'direction': "in",
-                        'row': row,
-                        'format': '',
-                        'position': -10
-                    })
-
-                elif 'connected_app' in data:
-                    self.create_app(data['connected_app'],
-                                    LAST_FILL_COLOR, LAST_STROKE_COLOR)
-
-                    self.create_protocol({
-                        'app_name': data["connected_app"],
-                        'direction': "in",
-                        'row': row,
-                        'format': data["format"],
-                        'position': -10
+                        'format': format_value,
+                        'position': 70 if direction == "out" else -10
                     })
 
     @debug_logging
     def create_instancies_connections(self) -> None:
         """
-        After creates the applicatoin and protocols shape, this function creates the 
-        connections and the labels.
-
-        The connections connect the shouce and target protocol for each interface
-
-        The labels are created above the connection and the ricefw url created down 
-        below to the connections arrows.
-
-        the detail link generate a clickable link to an informed url.
+        After creating the application and protocols shapes, this function creates the 
+        connections and labels.
+        The connections connect the source and target protocol for each interface.
+        The labels are created above the connection and the ricefw URL is created down 
+        below the connections arrows.
+        The detail link generates a clickable link to an informed URL.
         """
 
-        for row, interface in enumerate(self.config['interfaces']):
+        current_code_id = None
+        row = -1  # Initialize to -1 so that the first iteration sets it to 0
+
+        for interface in self.config['interfaces']:
+
+            if interface.code_id != current_code_id:
+                row += 1
+                current_code_id = interface.code_id
+
             self.size_parameters["y_protocol"] = (self.size_parameters["y_protocol_start"] +
                                                   (PROTOCOL_HEIGHT + Y_OFFSET) * row)
 
-            for _, data in enumerate(interface['apps']):
-                if 'connection' not in data:
+            for app in interface.apps:
+
+                connection_app = app.connection.app
+                if not connection_app:
                     continue
 
-                app = data['connection']["app"]
+                app_name = app.app_name
+                direction = interface.direction
 
-                for app_type in APP_TYPES:
-                    if app_type not in data:
-                        continue
+                self.create_connection(
+                    connection_app, app_name, row, direction)
 
-                    app_data = data[app_type]
-                    direction = interface["direction"]
+                connection_detail = app.connection.detail
+                if connection_detail:
+                    self.create_detail({
+                        'source': connection_app,
+                        'target': app_name,
+                        'row': row,
+                        'text': connection_detail,
+                        'direction': direction
+                    })
 
-                    self.create_connection(app, app_data, row, direction)
+                interface_info = app.interface
+                if interface_info:
+                    interface_id = interface_info.interface_id
+                    interface_url = interface_info.interface_url
 
-                    detail = data['connection'].get("detail")
-                    if detail:
-                        self.create_detail({
-                            'source': app,
-                            'target': app_data,
-                            'row': row,
-                            'text': detail,
-                            'direction': direction
-                        })
-
-                    interface_info = data['connection'].get("interface")
-                    if interface_info:
-                        interface_id = interface_info["id"]
-                        interface_url = interface_info["url"]
-
-                        self.create_detail_links({
-                            'source': app,
-                            'target': app_data,
-                            'row': row,
-                            'text': interface_id,
-                            'url': interface_url,
-                            'direction': direction
-                        })
+                    self.create_detail_links({
+                        'source': connection_app,
+                        'target': app_name,
+                        'row': row,
+                        'text': interface_id,
+                        'url': interface_url,
+                        'direction': direction
+                    })
 
     @debug_logging
     def build_xml_file(self) -> None:
@@ -597,6 +553,7 @@ class InterfaceDiagram:
         Build the XML file and generate a dinamical url to access the diagram
         :return: draw.io diagram exported in a url format
         """
+
         self.build_xml_file()
         data = ET.tostring(self.xml_content['mxfile'])
         data = self.config['encoder'].encode_diagram_data(data)

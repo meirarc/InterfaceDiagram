@@ -17,6 +17,8 @@ from src.main.encoding_helper import EncodingHelper
 from src.main.json_parser import JSONParser
 from src.main.interface_diagram import InterfaceDiagram
 
+from src.main.data_definitions import SourceStructure
+
 from src.main.excel_utils import create_excel_table
 
 from src.main.logging_utils import debug_logging
@@ -47,7 +49,6 @@ class S3InterfaceURLGetter:
         self.data_frame = pd.DataFrame(
             columns=['connected_app', 'body', 'file_name', 'url'])
 
-        self.parser = JSONParser()
         self.encoder = EncodingHelper()
         self.interfaces = None
 
@@ -94,7 +95,9 @@ class S3InterfaceURLGetter:
             app_name = self.get_connected_app_name(data)
 
             try:
-                self.interfaces = self.parser.json_to_object(data)
+                self.interfaces = JSONParser.json_to_object(
+                    [SourceStructure(**item) for item in data])
+
                 diagram = InterfaceDiagram(self.interfaces, self.encoder)
                 url = diagram.generate_diagram_url()
 

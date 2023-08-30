@@ -2,6 +2,7 @@
 Test for the instance_diagram.py
 """
 import xml.etree.ElementTree as ET
+import json
 
 import unittest
 import requests
@@ -10,6 +11,8 @@ from bs4 import BeautifulSoup
 from src.main.interface_diagram import InterfaceDiagram
 from src.main.json_parser import JSONParser
 from src.main.encoding_helper import EncodingHelper
+
+from src.main.data_definitions import SourceStructure
 
 
 class TestInterfaceDiagram(unittest.TestCase):
@@ -24,12 +27,12 @@ class TestInterfaceDiagram(unittest.TestCase):
         """
 
         file_name = 'src/tests/test_data/interfaces.json'
-        parser = JSONParser()
 
         with open(file_name, 'r', encoding='utf-8') as file_content:
-            data = parser.parse(file_content.read())
+            data = json.loads(file_content.read())
 
-        self.interfaces = parser.json_to_object(data)
+        self.interfaces = JSONParser.json_to_object(
+            [SourceStructure(**item) for item in data])
 
         self.diagram = InterfaceDiagram(self.interfaces, EncodingHelper())
 

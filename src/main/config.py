@@ -25,10 +25,3 @@ Y_OFFSET = 70                             # Additional space between each protoc
 PROTOCOL_HEIGHT = 20                      # Protocol height
 PROTOCOL_WIDTH = 60                       # Protocol width
 APP_WIDTH = 120                           # Application width
-
-# Types of applications relevant to the diagrams
-APP_TYPES = ['sap_app',
-             'middleware',
-             'gateway',
-             'other_middleware',
-             'connected_app']
