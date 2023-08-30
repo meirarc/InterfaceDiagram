@@ -60,8 +60,10 @@ def main() -> None:
             ('src/main/lambda_api_function.py', 'src/main/lambda_api_function.py'),
             ('src/main/interface_diagram.py', 'src/main/interface_diagram.py'),
             ('src/main/encoding_helper.py', 'src/main/encoding_helper.py'),
+            ('src/main/logging_utils.py', 'src/main/logging_utils.py'),
             ('src/main/json_parser.py', 'src/main/json_parser.py'),
             ('src/main/config.py', 'src/main/config.py')
+
         ]
     )
 
@@ -71,6 +73,7 @@ def main() -> None:
             ('src/main/lambda_s3_function.py', 'src/main/lambda_s3_function.py'),
             ('src/main/interface_diagram.py', 'src/main/interface_diagram.py'),
             ('src/main/encoding_helper.py', 'src/main/encoding_helper.py'),
+            ('src/main/logging_utils.py', 'src/main/logging_utils.py'),
             ('src/main/json_parser.py', 'src/main/json_parser.py'),
             ('src/main/excel_utils.py', 'src/main/excel_utils.py'),
             ('src/main/config.py', 'src/main/config.py'),
