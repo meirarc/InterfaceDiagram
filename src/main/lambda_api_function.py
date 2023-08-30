@@ -7,6 +7,7 @@ the input JSON data.
 from src.main.interface_diagram import InterfaceDiagram
 from src.main.json_parser import JSONParser
 from src.main.encoding_helper import EncodingHelper
+from src.main.logging_utils import configure_logging
 
 
 def lambda_handler(event, _):
@@ -17,6 +18,8 @@ def lambda_handler(event, _):
     :param _: Context parameter (unused).
     :return: Dictionary containing the response, including the diagram URL.
     """
+
+    configure_logging()
 
     # Initialize JSON parser and EncodingHelper
     parser = JSONParser()

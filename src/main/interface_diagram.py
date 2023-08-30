@@ -6,6 +6,9 @@ import xml.etree.ElementTree as ET
 import logging
 from typing import List, Dict, Tuple
 
+from src.main.encoding_helper import EncodingHelper
+from src.main.logging_utils import debug_logging
+
 from src.main.config import (
     # Constant fill colors
     FIRST_FILL_COLOR,                # Main system color
@@ -34,7 +37,6 @@ from src.main.config import (
     # Constant for the app sequencing
     APP_TYPES                        # Types of applications in scope to the diagrams
 )
-from src.main.encoding_helper import EncodingHelper
 
 
 class InterfaceDiagram:
@@ -42,10 +44,11 @@ class InterfaceDiagram:
     Class to represent and generate an Interface Diagram.
     """
 
+    @debug_logging
     def __init__(self,
                  interfaces: List[Dict],
                  encoder: EncodingHelper(),
-                 log_level: int = logging.ERROR) -> None:
+                 ) -> None:
         """
         Initialize the InterfaceDiagram class.
 
@@ -53,9 +56,6 @@ class InterfaceDiagram:
         :param encoder: Encoder to write the output file.
         :param log_level: Logging level. Default is logging.ERROR.
         """
-
-        logging.basicConfig(level=log_level)
-        logging.info('Init Class InterfaceDiagram')
 
         # Configuration parameters
         self.config = {
@@ -83,6 +83,7 @@ class InterfaceDiagram:
             'root': None
         }
 
+    @debug_logging
     def populate_app_lists(self, interfaces: List[Dict]) -> Dict[str, List[str]]:
         """
         Populate the list of applications for each type from the given interfaces.
@@ -90,7 +91,6 @@ class InterfaceDiagram:
         :param interfaces: List of interfaces.
         :return: Dictionary of lists of applications by type.
         """
-        logging.info('populate_app_lists(%s)', interfaces)
 
         app_lists = {
             'sap_apps': [],
@@ -108,6 +108,7 @@ class InterfaceDiagram:
 
         return app_lists
 
+    @debug_logging
     def create_app_order(self, app_lists: Dict[str, List[str]]) -> Tuple[Dict[str, int], int]:
         """
         Create the order in which applications will appear in the diagram.
@@ -115,8 +116,6 @@ class InterfaceDiagram:
         :param app_lists: Dictionary of lists of applications by type.
         :return: Dictionary of application order and total count of applications.
         """
-
-        logging.info('create_app_order()')
 
         app_list = (
             app_lists['sap_apps'] +
@@ -129,14 +128,13 @@ class InterfaceDiagram:
         app_order = {app: i for i, app in enumerate(app_list)}
         return app_order, len(app_list)
 
+    @debug_logging
     def initialize_xml_structure(self) -> None:
         """
         Create the initial elements of the XML file readable by draw.io
         The initial structure must need to contain the:
           mxfile, diagram, mxGraphModel, root, mxCell(0), mxCell(1)
         """
-        logging.info('initialize_xml_structure()')
-
         mxfile_parameters = {'host': 'app.diagrams.net', 'modified': '2023-07-25T12:42:08.179Z',
                              'agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
                                        'AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -167,6 +165,7 @@ class InterfaceDiagram:
         ET.SubElement(self.xml_content['root'], 'mxCell', {
                       'id': '1', 'parent': '0'})
 
+    @debug_logging
     def create_app(self, app_name: str, fill_color: str, stroke_color: str) -> None:
         """
         This method creates an application shape in the Draw.io diagram structure. 
@@ -176,8 +175,6 @@ class InterfaceDiagram:
         :param fill_color: The color used to fill the shape.
         :param stroke_color: The color used for the outline of the shape.
         """
-        logging.info('Creating app %s, fill_color: %s, stroke_color: %s',
-                     app_name, fill_color, stroke_color)
 
         if app_name not in self.app_order:
             logging.error('App name %s is not in the app order.', app_name)
@@ -220,6 +217,7 @@ class InterfaceDiagram:
                 }
             )
 
+    @debug_logging
     def create_protocol(self, protocol_config: dict) -> None:
         """
         This method creates a protocol shape in the Draw.io diagram structure. 
@@ -239,13 +237,12 @@ class InterfaceDiagram:
         app_format = protocol_config['format']
         position = protocol_config['position']
 
-        logging.info('create_protocol(%s)', protocol_config)
-
         if app_name not in self.app_order:
             logging.error('App name %s is not in the app order.', app_name)
             return
 
         object_id = f'{direction}_{app_name}_{row}'
+
         # Ensure that each ID is unique
         if object_id not in self.list_of_ids:
             self.list_of_ids.append(object_id)
@@ -270,6 +267,7 @@ class InterfaceDiagram:
                 'as': 'geometry'
             })
 
+    @debug_logging
     def create_connection(self, source: str, target: str, row: int, direction: str) -> None:
         """
         This method creates an connections in the Draw.io diagram structure. 
@@ -280,8 +278,6 @@ class InterfaceDiagram:
         :param row: The row to create the protocol
         :param direction: indicate an inbound or outbouind flow, reference from SAP system.
         """
-        logging.info('create_protocol(%s, %s, %s, %s)',
-                     source, target, row, direction)
 
         object_id = f'conn_{source}_{target}_{row}'
         # Ensure that each ID is unique
@@ -328,6 +324,7 @@ class InterfaceDiagram:
             # Create an 'mxGeometry' XML element for the connections
             ET.SubElement(mx_cell, 'mxGeometry', mx_geometry_attrs)
 
+    @debug_logging
     def create_detail(self, detail_params: dict) -> None:
         """
         This method creates a label in the Draw.io diagram structure. 
@@ -339,10 +336,7 @@ class InterfaceDiagram:
         target = detail_params['target']
         row = detail_params['row']
         text = detail_params['text']
-        direction = detail_params['direction']
-
-        logging.info('create_detail(%s, %s, %d, %s, %s)',
-                     source, target, row, text, direction)
+        # direction = detail_params['direction']
 
         object_id = f'detail_{source}_{target}_{row}'
 
@@ -378,6 +372,7 @@ class InterfaceDiagram:
 
             ET.SubElement(mx_cell, 'mxGeometry', mx_geometry_attrs)
 
+    @debug_logging
     def create_detail_links(self, link_params: dict) -> None:
         """
         This method creates a text shape with a URL link button to the connection in the 
@@ -391,10 +386,7 @@ class InterfaceDiagram:
         row = link_params['row']
         text = link_params['text']
         url = link_params['url']
-        direction = link_params['direction']
-
-        logging.info('create_ricefw_url(%s, %s, %d, %s, %s, %s)',
-                     source, target, row, text, url, direction)
+        # direction = link_params['direction']
 
         object_id = f'ricefw_{source}_{target}_{row}'
 
@@ -431,6 +423,7 @@ class InterfaceDiagram:
 
             ET.SubElement(mx_cell, 'mxGeometry', mx_geometry_attrs)
 
+    @debug_logging
     def create_instancies(self) -> None:
         """
         Loop into the interfaces to find all the applications and protocols 
@@ -443,7 +436,6 @@ class InterfaceDiagram:
         The combination of an application and the inbound and outbound protocols 
         results in a instance
         """
-        logging.info('create_structure_app_and_protocols()')
 
         for row, interface in enumerate(self.config['interfaces']):
             self.size_parameters["y_protocol"] = (self.size_parameters["y_protocol_start"] +
@@ -533,6 +525,7 @@ class InterfaceDiagram:
                         'position': -10
                     })
 
+    @debug_logging
     def create_instancies_connections(self) -> None:
         """
         After creates the applicatoin and protocols shape, this function creates the 
@@ -545,7 +538,6 @@ class InterfaceDiagram:
 
         the detail link generate a clickable link to an informed url.
         """
-        logging.info('create_instancies_connections()')
 
         for row, interface in enumerate(self.config['interfaces']):
             self.size_parameters["y_protocol"] = (self.size_parameters["y_protocol_start"] +
@@ -590,23 +582,21 @@ class InterfaceDiagram:
                             'direction': direction
                         })
 
+    @debug_logging
     def build_xml_file(self) -> None:
         """
         Create the whole structure of the xml file readable by draw.io
         """
-        logging.info('build_xml_file()')
-
         self.initialize_xml_structure()
         self.create_instancies()
         self.create_instancies_connections()
 
+    @debug_logging
     def generate_diagram_url(self):
         """
         Build the XML file and generate a dinamical url to access the diagram
         :return: draw.io diagram exported in a url format
         """
-        logging.info('generate_diagram_url()')
-
         self.build_xml_file()
         data = ET.tostring(self.xml_content['mxfile'])
         data = self.config['encoder'].encode_diagram_data(data)

@@ -6,7 +6,10 @@ from openpyxl import Workbook
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.worksheet.worksheet import Worksheet
 
+from src.main.logging_utils import debug_logging
 
+
+@debug_logging
 def create_excel_table(workbook: Workbook, sheet_name: str = 'Sheet1') -> None:
     """
     Creates an Excel table in the given worksheet.

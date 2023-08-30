@@ -17,6 +17,8 @@ from src.main.json_parser import JSONParser
 from src.main.interface_diagram import InterfaceDiagram
 from src.main.excel_utils import create_excel_table
 
+from src.main.logging_utils import debug_logging
+
 
 class LocalInterfaceURLGetter:
     """
@@ -26,7 +28,7 @@ class LocalInterfaceURLGetter:
     necessary data, clear existing data in the Excel file, and save new records to the
     Excel file.
     """
-
+    @debug_logging
     def __init__(self, source_dir, excel_file):
         """
         Initializes the LocalInterfaceURLGetter with specified directory paths 
@@ -50,6 +52,7 @@ class LocalInterfaceURLGetter:
         self.data_frame = pd.DataFrame(
             columns=['connected_app', 'body', 'file_name', 'url'])
 
+    @debug_logging
     def process_json_files(self):
         """
         Processes JSON files from the source directory and updates the DataFrame.
@@ -69,6 +72,7 @@ class LocalInterfaceURLGetter:
                 columns=['connected_app', 'body', 'file_name', 'url'], index=[0]
             )
 
+    @debug_logging
     def process_single_file(self, filename: str):
         """
         Processes a single JSON file.
@@ -102,6 +106,7 @@ class LocalInterfaceURLGetter:
                 self.file_info['error_dir'], filename)
             shutil.move(source_path, error_file_path)
 
+    @debug_logging
     def is_content_identical(self, source_path: str, backup_path: str) -> bool:
         """
         Checks if the content of the source file is identical to its backup.
@@ -112,6 +117,7 @@ class LocalInterfaceURLGetter:
             backup_content = json.load(backup_file)
         return source_content == backup_content
 
+    @debug_logging
     def get_connected_app_name(self, data: Dict) -> str:
         """
         Extracts the connected app name from the data.
@@ -121,6 +127,7 @@ class LocalInterfaceURLGetter:
                 return item['app_name']
         return ''
 
+    @debug_logging
     def append_to_data_frame(self, app_name: str, data: Dict, filename: str, url: str):
         """
         Appends a new row to the DataFrame.
@@ -129,6 +136,7 @@ class LocalInterfaceURLGetter:
         self.data_frame.loc[new_index] = [
             app_name, self.parser.dumps(data), filename, url]
 
+    @debug_logging
     def save_results(self):
         """
         Saves the new records (stored in self.df) to the specified sheet in the Excel file.

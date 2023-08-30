@@ -6,6 +6,7 @@ and saves the results in an Excel file.
 """
 import json
 from src.main.s3_interface_url_getter import S3InterfaceURLGetter
+from src.main.logging_utils import configure_logging
 
 
 def lambda_handler(event, _):
@@ -16,6 +17,8 @@ def lambda_handler(event, _):
     :param _: Context parameter (unused).
     :return: Dictionary containing the response.
     """
+
+    configure_logging()
 
     # Log the event object to CloudWatch Logs
     print("Received event: " + json.dumps(event, indent=2))

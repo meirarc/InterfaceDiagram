@@ -1,16 +1,19 @@
 """
 This module provides functionalities to parse JSON data.
 """
-import logging
 from typing import List, Dict
 import json
+
+from src.main.logging_utils import debug_logging
 
 
 class JSONParser:
     """
     A class to parse JSON data.
     """
+
     @staticmethod
+    @debug_logging
     def json_to_object(data: List[Dict]) -> List[Dict]:
         """
         Transform JSON to a formatted object.
@@ -18,7 +21,6 @@ class JSONParser:
         :param data: List of dictionaries representing the JSON data.
         :return: List of dictionaries representing the transformed data.
         """
-        logging.info('json_to_object()')
 
         interfaces = {}
         for row in data:
@@ -46,6 +48,7 @@ class JSONParser:
             interfaces[code_id]['apps'].append(app)
         return list(interfaces.values())
 
+    @debug_logging
     def parse(self, data):
         """
         Parse the given JSON data.
@@ -55,6 +58,7 @@ class JSONParser:
         """
         return json.loads(data)
 
+    @debug_logging
     def dumps(self, data):
         """
         Dumps the given JSON data.

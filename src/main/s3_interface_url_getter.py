@@ -19,12 +19,15 @@ from src.main.interface_diagram import InterfaceDiagram
 
 from src.main.excel_utils import create_excel_table
 
+from src.main.logging_utils import debug_logging
+
 
 class S3InterfaceURLGetter:
     """
     Class to update the Interface Diagram URL Excel file on S3.
     """
 
+    @debug_logging
     def __init__(self, source_dir: str, excel_file: str):
         """
         Initializes with specified S3 directory paths and an empty DataFrame.
@@ -51,6 +54,7 @@ class S3InterfaceURLGetter:
         if self.file_info['is_s3']:
             self.s3_client = boto3.client('s3')
 
+    @debug_logging
     def process_json_files(self):
         """
         Processes JSON files from the S3 source directory and updates the DataFrame.
@@ -73,6 +77,7 @@ class S3InterfaceURLGetter:
                 columns=['connected_app', 'body', 'file_name', 'url'], index=[0]
             )
 
+    @debug_logging
     def process_single_file(self, filename: str):
         """
         Processes a single JSON file from S3.
@@ -107,6 +112,7 @@ class S3InterfaceURLGetter:
                 error_file_path = f'{self.file_info["error_dir"]}{clean_file_name}'
                 self._move_file(source_path, error_file_path)
 
+    @debug_logging
     def get_connected_app_name(self, data: Dict) -> str:
         """
         Extracts the connected app name from the data.
@@ -116,6 +122,7 @@ class S3InterfaceURLGetter:
                 return item['app_name']
         return ''
 
+    @debug_logging
     def _list_files(self, directory):
         """
         List the files in a S3 directory
@@ -128,6 +135,7 @@ class S3InterfaceURLGetter:
             if not key.startswith('in/backup/') and not key.startswith('in/error/'):
                 yield key
 
+    @debug_logging
     def _read_json(self, filepath):
         """
         Read a Json file
@@ -138,6 +146,7 @@ class S3InterfaceURLGetter:
         data_frame = pd.read_json(json_content)
         return data_frame.to_dict(orient='records')  # pylint: disable=E1101
 
+    @debug_logging
     def _save_to_excel(self, data_frame, filepath):
         """
         save the data frame to an excel file
@@ -169,6 +178,7 @@ class S3InterfaceURLGetter:
         self.s3_client.put_object(
             Bucket=bucket, Key=key, Body=excel_buffer)
 
+    @debug_logging
     def _move_file(self, src_path, dest_path):
         """
         Move the file from a source to destination path in a S3 bucket
@@ -180,6 +190,7 @@ class S3InterfaceURLGetter:
             'Bucket': src_bucket, 'Key': src_key}, Key=dest_key)
         self.s3_client.delete_object(Bucket=src_bucket, Key=src_key)
 
+    @debug_logging
     def _parse_s3_path(self, path):
         """
         Parse the S3 path into bucket and key
@@ -189,6 +200,7 @@ class S3InterfaceURLGetter:
         bucket, key = path.split('/', 1)
         return bucket, key.lstrip('/')
 
+    @debug_logging
     def _compare_files(self, source_path, backup_path):
         """
         compare two files on the s3 bucket
@@ -210,6 +222,7 @@ class S3InterfaceURLGetter:
         except self.s3_client.exceptions.NoSuchKey:
             return True
 
+    @debug_logging
     def _read_s3_file(self, filepath):
         """
         read a file on the s3 bucket
@@ -219,6 +232,7 @@ class S3InterfaceURLGetter:
         file_content = response['Body'].read().decode('utf-8')
         return file_content
 
+    @debug_logging
     def save_results(self):
         """
         Saves the new records to the specified Excel file in S3.
