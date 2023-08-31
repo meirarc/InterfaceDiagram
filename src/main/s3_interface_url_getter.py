@@ -6,6 +6,7 @@ processes the contents of these files, and updates an Excel file with the parsed
 If no JSON files are found, a blank record is created in the Excel file.
 """
 import io
+import json
 
 from typing import Dict
 
@@ -104,7 +105,7 @@ class S3InterfaceURLGetter:
                 # Append the new data to the DataFrame
                 new_index = len(self.data_frame)
                 self.data_frame.loc[new_index] = [
-                    app_name, self.parser.dumps(data), clean_file_name, url
+                    app_name, json.dumps(data), clean_file_name, url
                 ]
                 self._move_file(source_path, backup_path)
 
