@@ -8,6 +8,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - deploy: 'false'
     
     steps:
     - name: Checkout repository
@@ -39,14 +43,17 @@ jobs:
         python -m unittest discover src/tests/
           
     - name: Delete current stack
+      if: matrix.deploy == 'true'
       run: 
         aws cloudformation delete-stack --stack-name diagram
 
     - name: Generate zip files
+      if: matrix.deploy == 'true'
       run: |
         python ./scripts/generate_zip.py
 
     - name: Upload files to S3
+      if: matrix.deploy == 'true'
       run: |
         aws s3 cp ./scripts/lambda_api_function.zip s3://interface-diagram/lambda_api_function.zip
         aws s3 cp ./scripts/lambda_s3_function.zip s3://interface-diagram/lambda_s3_function.zip
@@ -54,9 +61,11 @@ jobs:
         aws s3 cp ./scripts/lambda_function.yaml s3://interface-diagram/lambda_function.yaml
 
     - name: Wait for stack deletion
+      if: matrix.deploy == 'true'
       run: sleep 80
   
     - name: Create new stack
+      if: matrix.deploy == 'true'
       run: |
         aws cloudformation create-stack --stack-name diagram \
         --template-url https://interface-diagram.s3.amazonaws.com/lambda_function.yaml \
