@@ -164,11 +164,12 @@ class InterfaceDiagram:
         # Ensure that each ID is unique
         if object_id not in self.list_of_ids:
             self.list_of_ids.append(object_id)
-            # Create an 'mxCell' XML element for the application shape
 
+            # Create style string
             style = (f'rounded=1;whiteSpace=wrap;html=1;fillColor={fill_color};'
                      f'strokeColor={stroke_color};verticalAlign=top;')
 
+            # Create an 'mxCell' XML element for the application shape
             mx_cell = ET.SubElement(
                 self.xml_content['root'],
                 'mxCell',
@@ -176,8 +177,8 @@ class InterfaceDiagram:
                     'id': object_id,
                     'value': app_name,
                     'style': style,
-                    'parent': '1',
-                    'vertex': '1'
+                    'parent': config.DEFAULT_PARENT_ID,
+                    'vertex': config.DEFAULT_VERTEX
                 }
             )
 
@@ -193,7 +194,7 @@ class InterfaceDiagram:
                     'y': '0',
                     'width': width_value,
                     'height': height_value,
-                    'as': 'geometry'
+                    'as': config.APP_GEOMETRY
                 }
             )
 
