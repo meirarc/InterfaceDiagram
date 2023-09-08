@@ -10,7 +10,7 @@ from src.main import config
 from src.main.logging_utils import debug_logging
 from src.main.encoding_helper import EncodingHelper
 from src.main.data_definitions import (
-    ConnectionConfig, DetailConfig, InterfaceStructure, ProtocolConfig)
+    ConnectionConfig, DetailConfig, InterfaceStructure, LinkConfig, ProtocolConfig)
 
 from src.main.data_definitions import SizeParameters
 
@@ -364,56 +364,57 @@ class InterfaceDiagram:
         ET.SubElement(mx_cell, 'mxGeometry', mx_geometry_attrs)
 
     @debug_logging
-    def create_detail_links(self, link_params: dict) -> None:
+    def create_detail_links(self, link_config: LinkConfig) -> None:
         """
         This method creates a text shape with a URL link button to the connection in the 
         Draw.io diagram structure. Each application shape is represented as an 'mxCell' 
         XML element with specific attributes.
-
-        :param link_params: A dictionary containing the necessary parameters.
         """
-        source = link_params['source']
-        target = link_params['target']
-        row = link_params['row']
-        text = link_params['text']
-        url = link_params['url']
+        source = link_config.source
+        target = link_config.target
+        row = link_config.row
+        text = link_config.text
+        url = link_config.url
 
         object_id = f'ricefw_{source}_{target}_{row}'
 
         # Ensure that each ID is unique
-        if object_id not in self.list_of_ids:
-            self.list_of_ids.append(object_id)
+        if object_id in self.list_of_ids:
+            logging.info('Object ID %s is already used.', object_id)
+            return
 
-            value = f'<a href={url}>{text}</a>'
-            style = 'text;html=1;strokeColor=none;fillColor=none;align=center;'\
-                    'verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9'
+        self.list_of_ids.append(object_id)
 
-            x_position = config.X_DETAIL_INITIAL + \
-                (config.APP_WIDTH * config.APP_SIZE_SPACE) * \
-                self.app_order[source]
+        value = f'<a href={url}>{text}</a>'
+        style = 'text;html=1;strokeColor=none;fillColor=none;align=center;'\
+                'verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9'
 
-            # Create an 'mxCell' XML element for the URL link of the RICEFW ID
-            mx_cell_attrs = {
-                'id': object_id,
-                'value': value,
-                'style': style,
-                'vertex': '1',
-                'parent': '1'
-            }
+        x_position = config.X_DETAIL_INITIAL + \
+            (config.APP_WIDTH * config.APP_SIZE_SPACE) * \
+            self.app_order[source]
 
-            mx_cell = ET.SubElement(
-                self.xml_content['root'], 'mxCell', mx_cell_attrs)
+        # Create an 'mxCell' XML element for the URL link of the RICEFW ID
+        mx_cell_attrs = {
+            'id': object_id,
+            'value': value,
+            'style': style,
+            'parent': config.DEFAULT_PARENT_ID,
+            'vertex': config.DEFAULT_VERTEX
+        }
 
-            # Create an 'mxGeometry' XML element for the connections
-            mx_geometry_attrs = {
-                'x': str(x_position),
-                'y': str(self.size_parameters.y_protocol + 10),
-                'width': str(config.DETAIL_WIDTH),
-                'height': str(config.DETAIL_HEIGHT),
-                'as': 'geometry'
-            }
+        mx_cell = ET.SubElement(
+            self.xml_content['root'], 'mxCell', mx_cell_attrs)
 
-            ET.SubElement(mx_cell, 'mxGeometry', mx_geometry_attrs)
+        # Create an 'mxGeometry' XML element for the connections
+        mx_geometry_attrs = {
+            'x': str(x_position),
+            'y': str(self.size_parameters.y_protocol + 10),
+            'width': str(config.DETAIL_WIDTH),
+            'height': str(config.DETAIL_HEIGHT),
+            'as': config.APP_GEOMETRY
+        }
+
+        ET.SubElement(mx_cell, 'mxGeometry', mx_geometry_attrs)
 
     @debug_logging
     def create_instancies(self, interfaces) -> None:
@@ -529,14 +530,13 @@ class InterfaceDiagram:
                     interface_id = interface_info.interface_id
                     interface_url = interface_info.interface_url
 
-                    self.create_detail_links({
-                        'source': connection_app,
-                        'target': app_name,
-                        'row': row,
-                        'text': interface_id,
-                        'url': interface_url,
-                        'direction': direction
-                    })
+                    self.create_detail_links(LinkConfig(
+                        source=connection_app,
+                        target=app_name,
+                        row=row,
+                        text=interface_id,
+                        url=interface_url
+                    ))
 
     @debug_logging
     def build_xml_file(self) -> None:

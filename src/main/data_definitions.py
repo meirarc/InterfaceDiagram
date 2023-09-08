@@ -84,3 +84,12 @@ class DetailConfig:
     target: str
     row: int
     text: str
+
+
+@dataclass
+class LinkConfig:
+    source: str
+    target: str
+    row: int
+    text: str
+    url: str
