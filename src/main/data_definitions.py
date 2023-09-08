@@ -56,3 +56,13 @@ class SizeParameters:
     y_protocol_start: float
     app_height: float
     page_width: float
+
+
+@dataclass
+class ProtocolConfig:
+    """Protocol Configuration to diagram class"""
+    app_name: str
+    direction: str
+    row: int
+    app_format: str
+    position: float

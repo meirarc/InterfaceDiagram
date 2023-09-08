@@ -9,7 +9,7 @@ from typing import List, Dict, Tuple
 from src.main import config
 from src.main.logging_utils import debug_logging
 from src.main.encoding_helper import EncodingHelper
-from src.main.data_definitions import InterfaceStructure
+from src.main.data_definitions import InterfaceStructure, ProtocolConfig
 
 from src.main.data_definitions import SizeParameters
 
@@ -162,94 +162,94 @@ class InterfaceDiagram:
 
         object_id = app_name
         # Ensure that each ID is unique
-        if object_id not in self.list_of_ids:
-            self.list_of_ids.append(object_id)
+        if object_id in self.list_of_ids:
+            logging.info('Object ID %s is already used.', object_id)
+            return
 
-            # Create style string
-            style = (f'rounded=1;whiteSpace=wrap;html=1;fillColor={fill_color};'
-                     f'strokeColor={stroke_color};verticalAlign=top;')
+        self.list_of_ids.append(object_id)
 
-            # Create an 'mxCell' XML element for the application shape
-            mx_cell = ET.SubElement(
-                self.xml_content['root'],
-                'mxCell',
-                {
-                    'id': object_id,
-                    'value': app_name,
-                    'style': style,
-                    'parent': config.DEFAULT_PARENT_ID,
-                    'vertex': config.DEFAULT_VERTEX
-                }
-            )
+        # Create style string
+        style = (f'rounded=1;whiteSpace=wrap;html=1;fillColor={fill_color};'
+                 f'strokeColor={stroke_color};verticalAlign=top;')
 
-            x_value = f'{config.APP_WIDTH * config.APP_SIZE_SPACE * self.app_order[app_name]}'
-            width_value = f'{config.APP_WIDTH}'
-            height_value = str(self.size_parameters.app_height)
+        # Create an 'mxCell' XML element for the application shape
+        mx_cell = ET.SubElement(
+            self.xml_content['root'],
+            'mxCell',
+            {
+                'id': object_id,
+                'value': app_name,
+                'style': style,
+                'parent': config.DEFAULT_PARENT_ID,
+                'vertex': config.DEFAULT_VERTEX
+            }
+        )
 
-            ET.SubElement(
-                mx_cell,
-                'mxGeometry',
-                {
-                    'x': x_value,
-                    'y': '0',
-                    'width': width_value,
-                    'height': height_value,
-                    'as': config.APP_GEOMETRY
-                }
-            )
+        x_value = f'{config.APP_WIDTH * config.APP_SIZE_SPACE * self.app_order[app_name]}'
+        width_value = f'{config.APP_WIDTH}'
+        height_value = str(self.size_parameters.app_height)
+
+        ET.SubElement(
+            mx_cell,
+            'mxGeometry',
+            {
+                'x': x_value,
+                'y': '0',
+                'width': width_value,
+                'height': height_value,
+                'as': config.APP_GEOMETRY
+            }
+        )
 
     @debug_logging
-    def create_protocol(self, protocol_config: dict) -> None:
+    def create_protocol(self, protocol_config: ProtocolConfig) -> None:
         """
-        This method creates a protocol shape in the Draw.io diagram structure. 
+        Create a protocol shape in the Draw.io diagram structure.
         Each application shape is represented as an 'mxCell' XML element with specific attributes.
-
-        :param protocol_config: A dictionary containing the configuration for the protocol.
-            Expected keys are:
-                - 'app_name': The name of the application.
-                - 'direction': Indicate an inbound or outbound flow, reference from SAP system.
-                - 'row': The row to create the protocol
-                - 'format': The text to be added inside the protocol shape
-                - 'position': The position that the shape will be created on the diagram
         """
-        app_name = protocol_config['app_name']
-        direction = protocol_config['direction']
-        row = protocol_config['row']
-        app_format = protocol_config['format']
-        position = protocol_config['position']
+        app_name = protocol_config.app_name
+        direction = protocol_config.direction
+        row = protocol_config.row
+        app_format = protocol_config.app_format
+        position = protocol_config.position
 
         if app_name not in self.app_order:
             logging.error('App name %s is not in the app order.', app_name)
             return
 
         object_id = f'{direction}_{app_name}_{row}'
+
         # Ensure that each ID is unique
-        if object_id not in self.list_of_ids:
-            self.list_of_ids.append(object_id)
+        if object_id in self.list_of_ids:
+            logging.info('Object ID %s is already used.', object_id)
+            return
 
-            # Create an 'mxCell' XML element for the protocol shape
-            style = (f'shape=delay;whiteSpace=wrap;html=1;fillColor={config.PROTOCOL_FILL_COLOR};'
-                     f'strokeColor={config.PROTOCOL_STROKE_COLOR};rotation=0;fontSize=10;')
+        self.list_of_ids.append(object_id)
 
-            mx_cell = ET.SubElement(self.xml_content['root'], 'mxCell', {
-                'id': object_id,
-                'value': app_format,
-                'style': style,
-                'parent': '1',
-                'vertex': '1'
-            })
+        # Create an 'mxCell' XML element for the protocol shape
+        style = (f'shape=delay;whiteSpace=wrap;html=1;fillColor={config.PROTOCOL_FILL_COLOR};'
+                 f'strokeColor={config.PROTOCOL_STROKE_COLOR};rotation=0;fontSize=10;')
 
-            x_position = position + \
-                (config.APP_WIDTH * config.APP_SIZE_SPACE *
-                 self.app_order[app_name])
+        mx_cell = ET.SubElement(self.xml_content['root'], 'mxCell', {
+            'id': object_id,
+            'value': app_format,
+            'style': style,
+            'parent': config.DEFAULT_PARENT_ID,
+            'vertex': config.DEFAULT_VERTEX
+        })
 
-            ET.SubElement(mx_cell, 'mxGeometry', {
-                'x': f'{x_position}',
-                'y': f'{self.size_parameters.y_protocol}',
-                'width': f'{config.PROTOCOL_WIDTH}',
-                'height': f'{config.PROTOCOL_HEIGHT}',
-                'as': 'geometry'
-            })
+        app_order_factor = self.app_order[app_name]
+
+        x_position = position + \
+            (config.APP_WIDTH * config.APP_SIZE_SPACE * app_order_factor)
+
+        ET.SubElement(mx_cell, 'mxGeometry', {
+            'x': f'{x_position}',
+            'y': f'{self.size_parameters.y_protocol}',
+            'width': f'{config.PROTOCOL_WIDTH}',
+            'height': f'{config.PROTOCOL_HEIGHT}',
+            'as': config.APP_GEOMETRY
+        })
 
     @debug_logging
     def create_connection(self, source: str, target: str, row: int, direction: str) -> None:
@@ -462,13 +462,15 @@ class InterfaceDiagram:
                     else:
                         position = config.PROTOCOL_IN_POSITION
 
-                    self.create_protocol({
-                        'app_name': app_name,
-                        'direction': direction,
-                        'row': row,
-                        'format': format_value,
-                        'position': position
-                    })
+                    protocol_config = ProtocolConfig(
+                        app_name=app_name,
+                        direction=direction,
+                        row=row,
+                        app_format=format_value if format_value is not None else "",
+                        position=position
+                    )
+
+                    self.create_protocol(protocol_config)
 
     @debug_logging
     def create_instancies_connections(self, interfaces) -> None:
