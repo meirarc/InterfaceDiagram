@@ -24,18 +24,17 @@ class InterfaceDiagram:
         Initialize the InterfaceDiagram class.
 
         :param interfaces: List of interfaces to be represented in the diagram.
-        :param encoder: Encoder to write the output file.
-        :param log_level: Logging level. Default is logging.ERROR.
         """
         # Configuration parameters
         self.interfaces = interfaces
-        self.list_of_ids = []  # Control of ids
+        self.list_of_ids = []  # list_of_ids is used to control
 
         # Initialize application lists and orders
         self.app_lists = self.populate_app_lists(interfaces)
         self.app_order, self.app_count = self.create_app_order(self.app_lists)
 
-        self.size_parameters = self.calculate_size_parameters(interfaces)
+        # Initialize size parameters
+        self.size_parameters = self.calculate_size_parameters()
 
         # Initialize XML content
         self.xml_content = {
@@ -43,13 +42,18 @@ class InterfaceDiagram:
             'root': None
         }
 
-    def calculate_size_parameters(self, interfaces):
-        """calculate the size parameters"""
+    def calculate_size_parameters(self) -> SizeParameters:
+        """
+        Calculate and return the size parameters for the diagram.
+        These parameters include Y positions for the protocol, application height, and page width.
+        """
         unique_code_ids = len(
-            set(interface.code_id for interface in interfaces))
+            set(interface.code_id for interface in self.interfaces))
 
-        app_height = config.APP_MIN_HEIGHT + \
-            (config.PROTOCOL_HEIGHT + config.Y_OFFSET) * (unique_code_ids - 1)
+        # Calculate application height based on the unique code IDs
+        additional_height = (config.PROTOCOL_HEIGHT +
+                             config.Y_OFFSET) * (unique_code_ids - 1)
+        app_height = config.APP_MIN_HEIGHT + additional_height
 
         page_width = ((self.app_count * config.APP_SIZE_SPACE) -
                       1) * config.APP_WIDTH
@@ -432,7 +436,7 @@ class InterfaceDiagram:
                 current_code_id = interface.code_id
 
             self.size_parameters.y_protocol = (self.size_parameters.y_protocol_start +
-                                                  (config.PROTOCOL_HEIGHT + config.Y_OFFSET) * row)
+                                               (config.PROTOCOL_HEIGHT + config.Y_OFFSET) * row)
 
             for app in interface.apps:
 
@@ -486,7 +490,7 @@ class InterfaceDiagram:
                 current_code_id = interface.code_id
 
             self.size_parameters.y_protocol = (self.size_parameters.y_protocol_start +
-                                                  (config.PROTOCOL_HEIGHT + config.Y_OFFSET) * row)
+                                               (config.PROTOCOL_HEIGHT + config.Y_OFFSET) * row)
 
             for app in interface.apps:
 
