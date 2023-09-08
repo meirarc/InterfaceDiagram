@@ -27,7 +27,6 @@ class InterfaceDiagram:
         :param encoder: Encoder to write the output file.
         :param log_level: Logging level. Default is logging.ERROR.
         """
-
         # Configuration parameters
         self.config = {
             'interfaces': interfaces,
@@ -68,7 +67,6 @@ class InterfaceDiagram:
         :param interfaces: List of interfaces.
         :return: Dictionary of lists of applications by type.
         """
-
         app_lists = {
             'sap_apps': [],
             'middlewares': [],
@@ -95,7 +93,6 @@ class InterfaceDiagram:
         :param app_lists: Dictionary of lists of applications by type.
         :return: Dictionary of application order and total count of applications.
         """
-
         app_list = (
             app_lists['sap_apps'] +
             app_lists['middlewares'] +
@@ -259,7 +256,6 @@ class InterfaceDiagram:
         :param row: The row to create the protocol
         :param direction: indicate an inbound or outbouind flow, reference from SAP system.
         """
-
         object_id = f'conn_{source}_{target}_{row}'
         # Ensure that each ID is unique
         if object_id not in self.list_of_ids:
@@ -415,7 +411,6 @@ class InterfaceDiagram:
         The combination of an application and the inbound and outbound protocols 
         results in an instance
         """
-
         color_map = {
             'sap_app': (config.FIRST_FILL_COLOR, config.FIRST_STROKE_COLOR),
             'middleware': (config.MIDDLE_FILL_COLOR, config.MIDDLE_STROKE_COLOR),
@@ -479,7 +474,6 @@ class InterfaceDiagram:
         below the connections arrows.
         The detail link generates a clickable link to an informed URL.
         """
-
         current_code_id = None
         row = -1  # Initialize to -1 so that the first iteration sets it to 0
 
@@ -543,7 +537,6 @@ class InterfaceDiagram:
         Build the XML file and generate a dinamical url to access the diagram
         :return: draw.io diagram exported in a url format
         """
-
         self.build_xml_file()
         data = ET.tostring(self.xml_content['mxfile'])
         data = self.config['encoder'].encode_diagram_data(data)
