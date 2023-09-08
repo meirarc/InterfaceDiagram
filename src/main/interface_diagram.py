@@ -9,7 +9,7 @@ from typing import List, Dict, Tuple
 from src.main import config
 from src.main.logging_utils import debug_logging
 from src.main.encoding_helper import EncodingHelper
-from src.main.data_definitions import InterfaceStructure, ProtocolConfig
+from src.main.data_definitions import ConnectionConfig, InterfaceStructure, ProtocolConfig
 
 from src.main.data_definitions import SizeParameters
 
@@ -252,60 +252,64 @@ class InterfaceDiagram:
         })
 
     @debug_logging
-    def create_connection(self, source: str, target: str, row: int, direction: str) -> None:
+    def create_connection(self, connection_config: ConnectionConfig) -> None:
         """
-        This method creates an connections in the Draw.io diagram structure. 
+        Create connections in the Draw.io diagram structure.
         Each application shape is represented as an 'mxCell' XML element with specific attributes.
-
-        :param source: The name of the source application
-        :param target: The name of the target application
-        :param row: The row to create the protocol
-        :param direction: indicate an inbound or outbouind flow, reference from SAP system.
         """
+        source = connection_config.source
+        target = connection_config.target
+        direction = connection_config.direction
+        row = connection_config.row
+
         object_id = f'conn_{source}_{target}_{row}'
+
         # Ensure that each ID is unique
-        if object_id not in self.list_of_ids:
-            self.list_of_ids.append(object_id)
+        if object_id in self.list_of_ids:
+            logging.info('Object ID %s is already used.', object_id)
+            return
 
-            # Define parameters based on the direction (Outbound/Inbound)
-            fill_color = (config.CONNECTION_OUT_FILL_COLOR if direction == "Outbound"
-                          else config.CONNECTION_IN_FILL_COLOR)
-            stroke_color = (config.CONNECTION_OUT_STROKE_COLOR if direction == "Outbound"
-                            else config.CONNECTION_IN_STROKE_COLOR)
-            source_connection = (f'out_{source}_{row}' if direction == "Outbound"
-                                 else f'in_{target}_{row}')
-            target_connection = (f'in_{target}_{row}' if direction == "Outbound"
-                                 else f'out_{source}_{row}')
+        self.list_of_ids.append(object_id)
 
-            # Styles for the 'mxCell' XML element
-            style = (f'edgeStyle=orthogonalEdgeStyle;rounded=0;fillColor={fill_color};'
-                     f'strokeColor={stroke_color};orthogonalLoop=1;jettySize=auto;'
-                     'html=1;strokeWidth=3')
+        # Define parameters based on the direction (Outbound/Inbound)
+        fill_color = (config.CONNECTION_OUT_FILL_COLOR if direction == config.OUTBOUND
+                      else config.CONNECTION_IN_FILL_COLOR)
+        stroke_color = (config.CONNECTION_OUT_STROKE_COLOR if direction == config.OUTBOUND
+                        else config.CONNECTION_IN_STROKE_COLOR)
+        source_connection = (f'out_{source}_{row}' if direction == config.OUTBOUND
+                             else f'in_{target}_{row}')
+        target_connection = (f'in_{target}_{row}' if direction == config.OUTBOUND
+                             else f'out_{source}_{row}')
 
-            # Attributes for the 'mxCell' XML element
-            mx_cell_attrs = {
-                'id': object_id,
-                'value': '',
-                'invert': 'true',
-                'style': style,
-                'parent': '1',
-                'edge': '1',
-                'source': f'{source_connection}',
-                'target': f'{target_connection}'
-            }
+        # Styles for the 'mxCell' XML element
+        style = (f'edgeStyle=orthogonalEdgeStyle;rounded=0;fillColor={fill_color};'
+                 f'strokeColor={stroke_color};orthogonalLoop=1;jettySize=auto;'
+                 'html=1;strokeWidth=3')
 
-            # Create an 'mxCell' XML element for the connections
-            mx_cell = ET.SubElement(
-                self.xml_content['root'], 'mxCell', mx_cell_attrs)
+        # Attributes for the 'mxCell' XML element
+        mx_cell_attrs = {
+            'id': object_id,
+            'value': '',
+            'invert': 'true',
+            'style': style,
+            'parent': config.DEFAULT_PARENT_ID,
+            'edge': config.DEFAULT_EDGE,
+            'source': f'{source_connection}',
+            'target': f'{target_connection}'
+        }
 
-            # Attributes for the 'mxGeometry' XML element
-            mx_geometry_attrs = {
-                'relative': '1',
-                'as': 'geometry'
-            }
+        # Create an 'mxCell' XML element for the connections
+        mx_cell = ET.SubElement(
+            self.xml_content['root'], 'mxCell', mx_cell_attrs)
 
-            # Create an 'mxGeometry' XML element for the connections
-            ET.SubElement(mx_cell, 'mxGeometry', mx_geometry_attrs)
+        # Attributes for the 'mxGeometry' XML element
+        mx_geometry_attrs = {
+            'relative': '1',
+            'as': config.APP_GEOMETRY
+        }
+
+        # Create an 'mxGeometry' XML element for the connections
+        ET.SubElement(mx_cell, 'mxGeometry', mx_geometry_attrs)
 
     @debug_logging
     def create_detail(self, detail_params: dict) -> None:
@@ -501,8 +505,11 @@ class InterfaceDiagram:
                 app_name = app.app_name
                 direction = interface.direction
 
-                self.create_connection(
-                    connection_app, app_name, row, direction)
+                self.create_connection(ConnectionConfig(
+                    source=connection_app,
+                    target=app_name,
+                    row=row,
+                    direction=direction))
 
                 connection_detail = app.connection.detail
                 if connection_detail:

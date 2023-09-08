@@ -66,3 +66,12 @@ class ProtocolConfig:
     row: int
     app_format: str
     position: float
+
+
+@dataclass
+class ConnectionConfig:
+    """Connection Config for Diagram class"""
+    source: str
+    target: str
+    row: int
+    direction: str
