@@ -43,3 +43,18 @@ X_DETAIL_INITIAL = 120                    # Initial position for the Detail
 DETAIL_WIDTH = 120                        # Width for the Detail
 DETAIL_HEIGHT = 30                        # Height for the Detail
 DETAIL_SUB_SPACING = 20                   # Sub spacing for the detail vs app
+
+
+# XML Parameters
+MXFILE_PARAMETERS = {
+    'host': 'app.diagrams.net',
+    'modified': '2023-07-25T12:42:08.179Z',
+    'agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+              'AppleWebKit/537.36 (KHTML, like Gecko) '
+              'Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.82'),
+    'etag': '70Szxm5LCrq_Rskbk8Uq',
+    'version': '21.6.5',
+    'type': 'device'
+}
+
+DIAGRAM_PARAMETERS = {'name': 'Page-1', 'id': 'xI1n7PUDQ-lDr-DjmP3Y'}

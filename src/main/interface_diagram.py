@@ -113,34 +113,33 @@ class InterfaceDiagram:
     @debug_logging
     def initialize_xml_structure(self) -> None:
         """
-        Create the initial elements of the XML file readable by draw.io
-        The initial structure must need to contain the:
-          mxfile, diagram, mxGraphModel, root, mxCell(0), mxCell(1)
+        Create the initial elements of the XML file readable by draw.io.
+        The initial structure must contain the following elements:
+        mxfile, diagram, mxGraphModel, root, mxCell(0), mxCell(1)
         """
-        mxfile_parameters = {'host': 'app.diagrams.net', 'modified': '2023-07-25T12:42:08.179Z',
-                             'agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-                                       'AppleWebKit/537.36 (KHTML, like Gecko) '
-                                       'Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.82'),
-                             'etag': '70Szxm5LCrq_Rskbk8Uq', 'version': '21.6.5',
-                             'type': 'device'}
-
-        self.xml_content['mxfile'] = ET.Element('mxfile', mxfile_parameters)
+        self.xml_content['mxfile'] = ET.Element(
+            'mxfile', config.MXFILE_PARAMETERS)
 
         diagram = ET.SubElement(self.xml_content['mxfile'], 'diagram',
-                                {'name': 'Page-1', 'id': 'xI1n7PUDQ-lDr-DjmP3Y'})
+                                config.DIAGRAM_PARAMETERS)
 
-        page_width = f'{self.size_parameters.page_width}'
-        page_height = f'{self.size_parameters.app_height}'
-
-        mx_graph_model = ET.SubElement(diagram, 'mxGraphModel', {'dx': '1182', 'dy': '916',
-                                                                 'grid': '1', 'gridSize': '10',
-                                                                 'guides': '1', 'tooltips': '1',
-                                                                 'connect': '1', 'arrows': '1',
-                                                                 'fold': '1',
-                                                                 'page': '1', 'pageScale': '1',
-                                                                 'pageWidth': page_width,
-                                                                 'pageHeight': page_height,
-                                                                 'math': '0', 'shadow': '0'})
+        mx_graph_model = ET.SubElement(diagram, 'mxGraphModel', {
+            'dx': '1182',
+            'dy': '916',
+            'grid': '1',
+            'gridSize': '10',
+            'guides': '1',
+            'tooltips': '1',
+            'connect': '1',
+            'arrows': '1',
+            'fold': '1',
+            'page': '1',
+            'pageScale': '1',
+            'pageWidth': f'{self.size_parameters.page_width}',
+            'pageHeight': f'{self.size_parameters.app_height}',
+            'math': '0',
+            'shadow': '0'
+        })
 
         self.xml_content['root'] = ET.SubElement(mx_graph_model, 'root')
         ET.SubElement(self.xml_content['root'], 'mxCell', {'id': '0'})
