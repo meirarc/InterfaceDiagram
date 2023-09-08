@@ -2,40 +2,14 @@
 This module defines the InterfaceDiagram class used to generate diagrams
 from some input data.
 """
-import xml.etree.ElementTree as ET
 import logging
+import xml.etree.ElementTree as ET
 from typing import List, Dict, Tuple
 
-from src.main.encoding_helper import EncodingHelper
+from src.main import config
 from src.main.logging_utils import debug_logging
-
+from src.main.encoding_helper import EncodingHelper
 from src.main.data_definitions import InterfaceStructure
-
-from src.main.config import (
-    # Constant fill colors
-    FIRST_FILL_COLOR,                # Main system color
-    MIDDLE_FILL_COLOR,               # Middlewares colors
-    GATEWAY_FILL_COLOR,              # Gateway Colors
-    OTHER_FILL_COLOR,                # Other Middleware colors
-    LAST_FILL_COLOR,                 # Connected App colors
-    CONNECTION_OUT_FILL_COLOR,       # Outbound Connection colors
-    CONNECTION_IN_FILL_COLOR,        # Inbound Connection colors
-
-    # Constant stroke colors
-    FIRST_STROKE_COLOR,              # Main system color
-    MIDDLE_STROKE_COLOR,             # Middlewares colors
-    GATEWAY_STROKE_COLOR,            # Gateway Colors
-    OTHER_STROKE_COLOR,              # Other Middleware colors
-    LAST_STROKE_COLOR,               # Connected App colors
-    CONNECTION_OUT_STROKE_COLOR,     # Outbound Connection colors
-    CONNECTION_IN_STROKE_COLOR,      # Inbound Connection colors
-
-    # Constant size parameters
-    Y_OFFSET,                        # Additional space between each protocol
-    PROTOCOL_HEIGHT,                 # Protocol height
-    PROTOCOL_WIDTH,                  # Protocol width
-    APP_WIDTH,                       # Application width
-)
 
 
 class InterfaceDiagram:
@@ -74,8 +48,8 @@ class InterfaceDiagram:
         self.size_parameters = {
             'y_protocol': 0,
             'y_protocol_start': 40,
-            'app_height': 80 + (PROTOCOL_HEIGHT + Y_OFFSET) * (unique_code_ids - 1),
-            'page_width': ((self.app_count * 2) - 1) * APP_WIDTH
+            'app_height': 80 + (config.PROTOCOL_HEIGHT + config.Y_OFFSET) * (unique_code_ids - 1),
+            'page_width': ((self.app_count * 2) - 1) * config.APP_WIDTH
         }
 
         # Initialize XML content
@@ -203,8 +177,8 @@ class InterfaceDiagram:
                 }
             )
 
-            x_value = f'{APP_WIDTH * 2 * self.app_order[app_name]}'
-            width_value = f'{APP_WIDTH}'
+            x_value = f'{config.APP_WIDTH * 2 * self.app_order[app_name]}'
+            width_value = f'{config.APP_WIDTH}'
             height_value = str(self.size_parameters["app_height"])
 
             ET.SubElement(
@@ -261,10 +235,10 @@ class InterfaceDiagram:
             })
 
             ET.SubElement(mx_cell, 'mxGeometry', {
-                'x': f'{position + (APP_WIDTH * 2 * self.app_order[app_name])}',
+                'x': f'{position + (config.APP_WIDTH * 2 * self.app_order[app_name])}',
                 'y': f'{self.size_parameters["y_protocol"]}',
-                'width': f'{PROTOCOL_WIDTH}',
-                'height': f'{PROTOCOL_HEIGHT}',
+                'width': f'{config.PROTOCOL_WIDTH}',
+                'height': f'{config.PROTOCOL_HEIGHT}',
                 'as': 'geometry'
             })
 
@@ -286,10 +260,10 @@ class InterfaceDiagram:
             self.list_of_ids.append(object_id)
 
             # Define parameters based on the direction (Outbound/Inbound)
-            fill_color = (CONNECTION_OUT_FILL_COLOR if direction == "Outbound"
-                          else CONNECTION_IN_FILL_COLOR)
-            stroke_color = (CONNECTION_OUT_STROKE_COLOR if direction == "Outbound"
-                            else CONNECTION_IN_STROKE_COLOR)
+            fill_color = (config.CONNECTION_OUT_FILL_COLOR if direction == "Outbound"
+                          else config.CONNECTION_IN_FILL_COLOR)
+            stroke_color = (config.CONNECTION_OUT_STROKE_COLOR if direction == "Outbound"
+                            else config.CONNECTION_IN_STROKE_COLOR)
             source_connection = (f'out_{source}_{row}' if direction == "Outbound"
                                  else f'in_{target}_{row}')
             target_connection = (f'in_{target}_{row}' if direction == "Outbound"
@@ -347,7 +321,7 @@ class InterfaceDiagram:
             style = 'text;html=1;strokeColor=none;fillColor=none;align=center;'\
                     'verticalAlign=middle;whiteSpace=wrap;rounded=0'
 
-            x_position = 120 + (APP_WIDTH * 2) * self.app_order[source]
+            x_position = 120 + (config.APP_WIDTH * 2) * self.app_order[source]
 
             # Create an 'mxCell' XML element for the text shape related to the detail
             mx_cell_attrs = {
@@ -397,7 +371,7 @@ class InterfaceDiagram:
             style = 'text;html=1;strokeColor=none;fillColor=none;align=center;'\
                     'verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9'
 
-            x_position = 120 + (APP_WIDTH * 2) * self.app_order[source]
+            x_position = 120 + (config.APP_WIDTH * 2) * self.app_order[source]
 
             # Create an 'mxCell' XML element for the URL link of the RICEFW ID
             mx_cell_attrs = {
@@ -434,11 +408,11 @@ class InterfaceDiagram:
         """
 
         color_map = {
-            'sap_app': (FIRST_FILL_COLOR, FIRST_STROKE_COLOR),
-            'middleware': (MIDDLE_FILL_COLOR, MIDDLE_STROKE_COLOR),
-            'gateway': (GATEWAY_FILL_COLOR, GATEWAY_STROKE_COLOR),
-            'other_middleware': (OTHER_FILL_COLOR, OTHER_STROKE_COLOR),
-            'connected_app': (LAST_FILL_COLOR, LAST_STROKE_COLOR)
+            'sap_app': (config.FIRST_FILL_COLOR, config.FIRST_STROKE_COLOR),
+            'middleware': (config.MIDDLE_FILL_COLOR, config.MIDDLE_STROKE_COLOR),
+            'gateway': (config.GATEWAY_FILL_COLOR, config.GATEWAY_STROKE_COLOR),
+            'other_middleware': (config.OTHER_FILL_COLOR, config.OTHER_STROKE_COLOR),
+            'connected_app': (config.LAST_FILL_COLOR, config.LAST_STROKE_COLOR)
         }
 
         current_code_id = None
@@ -452,7 +426,7 @@ class InterfaceDiagram:
                 current_code_id = interface.code_id
 
             self.size_parameters["y_protocol"] = (self.size_parameters["y_protocol_start"] +
-                                                  (PROTOCOL_HEIGHT + Y_OFFSET) * row)
+                                                  (config.PROTOCOL_HEIGHT + config.Y_OFFSET) * row)
 
             for app in interface.apps:
 
@@ -500,7 +474,7 @@ class InterfaceDiagram:
                 current_code_id = interface.code_id
 
             self.size_parameters["y_protocol"] = (self.size_parameters["y_protocol_start"] +
-                                                  (PROTOCOL_HEIGHT + Y_OFFSET) * row)
+                                                  (config.PROTOCOL_HEIGHT + config.Y_OFFSET) * row)
 
             for app in interface.apps:
 
