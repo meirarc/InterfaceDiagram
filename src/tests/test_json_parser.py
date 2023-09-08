@@ -3,6 +3,7 @@ This module is used to test the JSONParser class and functions
 """
 import unittest
 from src.main.json_parser import JSONParser
+
 from src.main.data_definitions import (
     SourceStructure, InterfaceStructure, App, Connection, Interface)
 

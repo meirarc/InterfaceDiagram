@@ -1,8 +1,8 @@
 """Unit tests for the LocalInterfaceURLGetter class."""
-import unittest
 import os
-import shutil
 import json
+import shutil
+import unittest
 
 from src.main.local_interface_url_getter import LocalInterfaceURLGetter
 
