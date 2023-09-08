@@ -9,7 +9,6 @@ from src.main.data_definitions import SourceStructure
 from src.main.json_parser import JSONParser
 
 from src.main.interface_diagram import InterfaceDiagram
-from src.main.encoding_helper import EncodingHelper
 from src.main.logging_utils import configure_logging
 
 
@@ -30,7 +29,7 @@ def lambda_handler(event, _):
         [SourceStructure(**item) for item in data])
 
     diagram = InterfaceDiagram(interfaces)
-    url = diagram.generate_diagram_url(EncodingHelper())
+    url = diagram.generate_diagram_url()
 
     result = {
         "isBase64Encoded": False,

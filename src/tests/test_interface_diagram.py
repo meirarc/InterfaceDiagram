@@ -10,7 +10,6 @@ from bs4 import BeautifulSoup
 
 from src.main.interface_diagram import InterfaceDiagram
 from src.main.json_parser import JSONParser
-from src.main.encoding_helper import EncodingHelper
 
 from src.main.data_definitions import SourceStructure
 
@@ -112,7 +111,7 @@ class TestInterfaceDiagram(unittest.TestCase):
         Test the generate_diagram_url function
         """
         diagram = InterfaceDiagram(self.interfaces)
-        url = diagram.generate_diagram_url(EncodingHelper())
+        url = diagram.generate_diagram_url()
 
         print(url)
 

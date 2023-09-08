@@ -7,7 +7,6 @@ import logging
 # Import your lambda_handler function from your script
 from src.main.interface_diagram import InterfaceDiagram
 from src.main.json_parser import JSONParser
-from src.main.encoding_helper import EncodingHelper
 from src.main.logging_utils import configure_logging
 from src.main.data_definitions import SourceStructure
 
@@ -36,7 +35,7 @@ def main():
 
     # Initialize the InterfaceDiagram class and generate the diagram URL
     diagram = InterfaceDiagram(interfaces)
-    url = diagram.generate_diagram_url(EncodingHelper())
+    url = diagram.generate_diagram_url()
 
     logging.info(url)
 

@@ -545,19 +545,39 @@ class InterfaceDiagram:
     @debug_logging
     def build_xml_file(self) -> None:
         """
-        Create the whole structure of the xml file readable by draw.io
+        Create the whole structure of the XML file readable by Draw.io.
         """
+        # Initialize the basic XML structure for the Draw.io file
         self.initialize_xml_structure()
+
+        # Create instances for each application and its associated protocols
         self.create_instancies(self.interfaces)
+
+        # Create instances for the connections between applications and add labels
         self.create_instancies_connections(self.interfaces)
 
     @debug_logging
-    def generate_diagram_url(self, encoder: EncodingHelper()):
+    def generate_diagram_url(self):
         """
-        Build the XML file and generate a dinamical url to access the diagram
-        :return: draw.io diagram exported in a url format
+        Build the XML file and generate a dynamic URL to access the diagram.
+
+        :param encoder: An instance of EncodingHelper to encode the diagram data.
+        :return: Draw.io diagram URL
         """
+        encoder = EncodingHelper()
+
+        # Build the XML file for the diagram
         self.build_xml_file()
+
+        # Ensure that 'mxfile' exists in 'xml_content'
+        if 'mxfile' not in self.xml_content:
+            raise ValueError("The 'mxfile' key must exist in 'xml_content'.")
+
+        # Convert the XML content to a string
         data = ET.tostring(self.xml_content['mxfile'])
+
+        # Encode the data
         data = encoder.encode_diagram_data(data)
+
+        # Generate the URL
         return 'https://viewer.diagrams.net/?#R' + data

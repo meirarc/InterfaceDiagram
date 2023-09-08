@@ -12,7 +12,6 @@ from typing import Dict
 import pandas as pd
 from openpyxl import load_workbook
 
-from src.main.encoding_helper import EncodingHelper
 from src.main.json_parser import JSONParser
 from src.main.interface_diagram import InterfaceDiagram
 
@@ -95,7 +94,7 @@ class LocalInterfaceURLGetter:
                 [SourceStructure(**item) for item in data])
 
             diagram = InterfaceDiagram(self.interfaces)
-            url = diagram.generate_diagram_url(EncodingHelper())
+            url = diagram.generate_diagram_url()
 
             self.append_to_data_frame(app_name, data, filename, url)
             shutil.move(source_path, backup_path)
