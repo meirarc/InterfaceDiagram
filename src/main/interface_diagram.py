@@ -222,8 +222,8 @@ class InterfaceDiagram:
             self.list_of_ids.append(object_id)
 
             # Create an 'mxCell' XML element for the protocol shape
-            style = ('shape=delay;whiteSpace=wrap;html=1;fillColor=#eeeeee;'
-                     'strokeColor=#36393d;rotation=0;fontSize=10;')
+            style = (f'shape=delay;whiteSpace=wrap;html=1;fillColor={config.PROTOCOL_FILL_COLOR};'
+                     f'strokeColor={config.PROTOCOL_STROKE_COLOR};rotation=0;fontSize=10;')
 
             mx_cell = ET.SubElement(self.xml_content['root'], 'mxCell', {
                 'id': object_id,
@@ -439,7 +439,7 @@ class InterfaceDiagram:
                 format_value = app.format
 
                 fill_color, stroke_color = color_map.get(
-                    app_type, ('#FFFFFF', '#000000'))
+                    app_type, (config.APP_DEFAULT_FILL_COLOR, config.APP_DEFAULT_STROKE_COLOR))
 
                 self.create_app(app_name, fill_color, stroke_color)
 

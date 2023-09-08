@@ -20,6 +20,12 @@ LAST_STROKE_COLOR = '#666666'             # Connected App color
 CONNECTION_OUT_STROKE_COLOR = '#7ea6e0'   # Outbound Connection color
 CONNECTION_IN_STROKE_COLOR = '#d79b00'    # Inbound Connection color
 
+PROTOCOL_FILL_COLOR = '#eeeeee'           # Protocol Fill color
+PROTOCOL_STROKE_COLOR = '#36393d'         # Protocol Stroke color
+
+APP_DEFAULT_FILL_COLOR = '#FFFFFF'        # Standard app fill color
+APP_DEFAULT_STROKE_COLOR = '#000000'      # Standard app stroke color
+
 # Size parameters for diagram elements
 Y_OFFSET = 70                             # Additional space between each protocol
 APP_WIDTH = 120                           # Application width
