@@ -47,7 +47,6 @@ class LocalInterfaceURLGetter:
             'error_file_path': ''
         }
 
-        self.encoder = EncodingHelper()
         self.interfaces = None
 
         self.data_frame = pd.DataFrame(
@@ -95,8 +94,8 @@ class LocalInterfaceURLGetter:
             self.interfaces = JSONParser.json_to_object(
                 [SourceStructure(**item) for item in data])
 
-            diagram = InterfaceDiagram(self.interfaces, self.encoder)
-            url = diagram.generate_diagram_url()
+            diagram = InterfaceDiagram(self.interfaces)
+            url = diagram.generate_diagram_url(EncodingHelper())
 
             self.append_to_data_frame(app_name, data, filename, url)
             shutil.move(source_path, backup_path)

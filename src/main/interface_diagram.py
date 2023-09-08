@@ -17,9 +17,7 @@ class InterfaceDiagram:
     Class to represent and generate an Interface Diagram.
     """
     @debug_logging
-    def __init__(self,
-                 interfaces: List[InterfaceStructure],
-                 encoder: EncodingHelper()) -> None:
+    def __init__(self, interfaces: List[InterfaceStructure]) -> None:
         """
         Initialize the InterfaceDiagram class.
 
@@ -28,10 +26,7 @@ class InterfaceDiagram:
         :param log_level: Logging level. Default is logging.ERROR.
         """
         # Configuration parameters
-        self.config = {
-            'interfaces': interfaces,
-            'encoder': encoder
-        }
+        self.interfaces = interfaces
 
         self.list_of_ids = []  # Control of ids
 
@@ -422,7 +417,7 @@ class InterfaceDiagram:
         current_code_id = None
         row = -1  # Initialize to -1 so that the first iteration sets it to 0
 
-        for interface in self.config['interfaces']:
+        for interface in self.interfaces:
 
             # Check if the code_id has changed
             if interface.code_id != current_code_id:
@@ -477,7 +472,7 @@ class InterfaceDiagram:
         current_code_id = None
         row = -1  # Initialize to -1 so that the first iteration sets it to 0
 
-        for interface in self.config['interfaces']:
+        for interface in self.interfaces:
 
             if interface.code_id != current_code_id:
                 row += 1
@@ -532,12 +527,12 @@ class InterfaceDiagram:
         self.create_instancies_connections()
 
     @debug_logging
-    def generate_diagram_url(self):
+    def generate_diagram_url(self, encoder: EncodingHelper()):
         """
         Build the XML file and generate a dinamical url to access the diagram
         :return: draw.io diagram exported in a url format
         """
         self.build_xml_file()
         data = ET.tostring(self.xml_content['mxfile'])
-        data = self.config['encoder'].encode_diagram_data(data)
+        data = encoder.encode_diagram_data(data)
         return 'https://viewer.diagrams.net/?#R' + data

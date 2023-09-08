@@ -24,14 +24,13 @@ def lambda_handler(event, _):
 
     configure_logging()
 
-    encoder = EncodingHelper()
     data = json.loads(event['body'])
 
     interfaces = JSONParser.json_to_object(
         [SourceStructure(**item) for item in data])
 
-    diagram = InterfaceDiagram(interfaces, encoder)
-    url = diagram.generate_diagram_url()
+    diagram = InterfaceDiagram(interfaces)
+    url = diagram.generate_diagram_url(EncodingHelper())
 
     result = {
         "isBase64Encoded": False,

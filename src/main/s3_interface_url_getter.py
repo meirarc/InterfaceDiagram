@@ -50,7 +50,6 @@ class S3InterfaceURLGetter:
         self.data_frame = pd.DataFrame(
             columns=['connected_app', 'body', 'file_name', 'url'])
 
-        self.encoder = EncodingHelper()
         self.interfaces = None
 
         if self.file_info['is_s3']:
@@ -99,8 +98,8 @@ class S3InterfaceURLGetter:
                 self.interfaces = JSONParser.json_to_object(
                     [SourceStructure(**item) for item in data])
 
-                diagram = InterfaceDiagram(self.interfaces, self.encoder)
-                url = diagram.generate_diagram_url()
+                diagram = InterfaceDiagram(self.interfaces)
+                url = diagram.generate_diagram_url(EncodingHelper())
 
                 # Append the new data to the DataFrame
                 new_index = len(self.data_frame)

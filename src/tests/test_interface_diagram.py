@@ -34,7 +34,7 @@ class TestInterfaceDiagram(unittest.TestCase):
         self.interfaces = JSONParser.json_to_object(
             [SourceStructure(**item) for item in data])
 
-        self.diagram = InterfaceDiagram(self.interfaces, EncodingHelper())
+        self.diagram = InterfaceDiagram(self.interfaces)
 
     def tearDown(self):
         """
@@ -47,11 +47,11 @@ class TestInterfaceDiagram(unittest.TestCase):
         Test the function populate_app_lists comparing the
         self.app_list before and after running the function
         """
-        diagram = InterfaceDiagram(self.interfaces, EncodingHelper())
+        diagram = InterfaceDiagram(self.interfaces)
 
         initial_app_lists = diagram.app_lists.copy()
         after_app_list = diagram.populate_app_lists(
-            diagram.config['interfaces'])
+            diagram.interfaces)
 
         self.assertEqual(initial_app_lists, after_app_list)
 
@@ -111,8 +111,8 @@ class TestInterfaceDiagram(unittest.TestCase):
         """
         Test the generate_diagram_url function
         """
-        diagram = InterfaceDiagram(self.interfaces, EncodingHelper())
-        url = diagram.generate_diagram_url()
+        diagram = InterfaceDiagram(self.interfaces)
+        url = diagram.generate_diagram_url(EncodingHelper())
 
         print(url)
 
