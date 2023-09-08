@@ -22,6 +22,18 @@ CONNECTION_IN_STROKE_COLOR = '#d79b00'    # Inbound Connection color
 
 # Size parameters for diagram elements
 Y_OFFSET = 70                             # Additional space between each protocol
+APP_WIDTH = 120                           # Application width
+APP_MIN_HEIGHT = 80                       # Minimum height for the application shape
+APP_SIZE_SPACE = 2                        # The times of app_width
+
 PROTOCOL_HEIGHT = 20                      # Protocol height
 PROTOCOL_WIDTH = 60                       # Protocol width
-APP_WIDTH = 120                           # Application width
+Y_PROTOCOL_STARTS = 0                     # Initial value for the Y_PROTOCOL
+Y_PROTOCOL_STARTED_POSITION = 40          # Start position for protocols
+PROTOCOL_OUT_POSITION = 70                # Position for out protocol
+PROTOCOL_IN_POSITION = -10                 # Position for in protocol
+
+X_DETAIL_INITIAL = 120                    # Initial position for the Detail
+DETAIL_WIDTH = 120                        # Width for the Detail
+DETAIL_HEIGHT = 30                        # Height for the Detail
+DETAIL_SUB_SPACING = 20                   # Sub spacing for the detail vs app

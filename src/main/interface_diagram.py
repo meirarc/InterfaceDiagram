@@ -44,12 +44,14 @@ class InterfaceDiagram:
         unique_code_ids = len(
             set(interface.code_id for interface in interfaces))
 
+        app_height = config.APP_MIN_HEIGHT + \
+            (config.PROTOCOL_HEIGHT + config.Y_OFFSET) * (unique_code_ids - 1)
         # Initialize size parameters
         self.size_parameters = {
-            'y_protocol': 0,
-            'y_protocol_start': 40,
-            'app_height': 80 + (config.PROTOCOL_HEIGHT + config.Y_OFFSET) * (unique_code_ids - 1),
-            'page_width': ((self.app_count * 2) - 1) * config.APP_WIDTH
+            'y_protocol': config.Y_PROTOCOL_STARTS,
+            'y_protocol_start': config.Y_PROTOCOL_STARTED_POSITION,
+            'app_height': app_height,
+            'page_width': ((self.app_count * config.APP_SIZE_SPACE) - 1) * config.APP_WIDTH
         }
 
         # Initialize XML content
@@ -177,7 +179,7 @@ class InterfaceDiagram:
                 }
             )
 
-            x_value = f'{config.APP_WIDTH * 2 * self.app_order[app_name]}'
+            x_value = f'{config.APP_WIDTH * config.APP_SIZE_SPACE * self.app_order[app_name]}'
             width_value = f'{config.APP_WIDTH}'
             height_value = str(self.size_parameters["app_height"])
 
@@ -234,8 +236,12 @@ class InterfaceDiagram:
                 'vertex': '1'
             })
 
+            x_position = position + \
+                (config.APP_WIDTH * config.APP_SIZE_SPACE *
+                 self.app_order[app_name])
+
             ET.SubElement(mx_cell, 'mxGeometry', {
-                'x': f'{position + (config.APP_WIDTH * 2 * self.app_order[app_name])}',
+                'x': f'{x_position}',
                 'y': f'{self.size_parameters["y_protocol"]}',
                 'width': f'{config.PROTOCOL_WIDTH}',
                 'height': f'{config.PROTOCOL_HEIGHT}',
@@ -321,7 +327,8 @@ class InterfaceDiagram:
             style = 'text;html=1;strokeColor=none;fillColor=none;align=center;'\
                     'verticalAlign=middle;whiteSpace=wrap;rounded=0'
 
-            x_position = 120 + (config.APP_WIDTH * 2) * self.app_order[source]
+            x_position = config.X_DETAIL_INITIAL + (config.APP_WIDTH *
+                                                    config.APP_SIZE_SPACE) * self.app_order[source]
 
             # Create an 'mxCell' XML element for the text shape related to the detail
             mx_cell_attrs = {
@@ -338,9 +345,9 @@ class InterfaceDiagram:
             # Create an 'mxGeometry' XML element for the connections
             mx_geometry_attrs = {
                 'x': str(x_position),
-                'y': str(self.size_parameters["y_protocol"] - 20),
-                'width': '120',
-                'height': '30',
+                'y': str(self.size_parameters["y_protocol"] - config.DETAIL_SUB_SPACING),
+                'width': str(config.DETAIL_WIDTH),
+                'height': str(config.DETAIL_HEIGHT),
                 'as': 'geometry'
             }
 
@@ -371,7 +378,9 @@ class InterfaceDiagram:
             style = 'text;html=1;strokeColor=none;fillColor=none;align=center;'\
                     'verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9'
 
-            x_position = 120 + (config.APP_WIDTH * 2) * self.app_order[source]
+            x_position = config.X_DETAIL_INITIAL + \
+                (config.APP_WIDTH * config.APP_SIZE_SPACE) * \
+                self.app_order[source]
 
             # Create an 'mxCell' XML element for the URL link of the RICEFW ID
             mx_cell_attrs = {
@@ -389,8 +398,8 @@ class InterfaceDiagram:
             mx_geometry_attrs = {
                 'x': str(x_position),
                 'y': str(self.size_parameters["y_protocol"] + 10),
-                'width': '120',
-                'height': '30',
+                'width': str(config.DETAIL_WIDTH),
+                'height': str(config.DETAIL_HEIGHT),
                 'as': 'geometry'
             }
 
@@ -439,18 +448,25 @@ class InterfaceDiagram:
 
                 self.create_app(app_name, fill_color, stroke_color)
 
+                # Define the necessaries in or out protocols to be created
                 if app_type in ['middleware', 'gateway', 'other_middleware']:
                     directions = ["out", "in"]
                 else:
                     directions = ["out"] if app_type == 'sap_app' else ["in"]
 
                 for direction in directions:
+                    # Define the position
+                    if direction == "out":
+                        position = config.PROTOCOL_OUT_POSITION
+                    else:
+                        position = config.PROTOCOL_IN_POSITION
+
                     self.create_protocol({
                         'app_name': app_name,
                         'direction': direction,
                         'row': row,
                         'format': format_value,
-                        'position': 70 if direction == "out" else -10
+                        'position': position
                     })
 
     @debug_logging
