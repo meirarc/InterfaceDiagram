@@ -88,6 +88,7 @@ class DetailConfig:
 
 @dataclass
 class LinkConfig:
+    """Link config for the Diagram class"""
     source: str
     target: str
     row: int
