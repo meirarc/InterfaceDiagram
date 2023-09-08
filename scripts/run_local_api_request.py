@@ -9,6 +9,7 @@ from src.main.interface_diagram import InterfaceDiagram
 from src.main.json_parser import JSONParser
 from src.main.encoding_helper import EncodingHelper
 from src.main.logging_utils import configure_logging
+from src.main.data_definitions import SourceStructure
 
 
 def main():
@@ -28,18 +29,14 @@ def main():
         "body": json.dumps(interface_data)
     }
 
-    parser = JSONParser()
-    encoder = EncodingHelper()
+    data = json.loads(test_event['body'])
 
-    # Parse the JSON data from the event body
-    data = parser.parse(test_event['body'])
-
-    # Convert the parsed data to the required object format
-    interfaces = parser.json_to_object(data)
+    interfaces = JSONParser.json_to_object(
+        [SourceStructure(**item) for item in data])
 
     # Initialize the InterfaceDiagram class and generate the diagram URL
-    diagram = InterfaceDiagram(interfaces, encoder)
-    url = diagram.generate_diagram_url()
+    diagram = InterfaceDiagram(interfaces)
+    url = diagram.generate_diagram_url(EncodingHelper())
 
     logging.info(url)
 
