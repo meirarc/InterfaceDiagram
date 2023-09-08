@@ -58,3 +58,7 @@ MXFILE_PARAMETERS = {
 }
 
 DIAGRAM_PARAMETERS = {'name': 'Page-1', 'id': 'xI1n7PUDQ-lDr-DjmP3Y'}
+
+DEFAULT_PARENT_ID = 1
+DEFAULT_VERTEX = 1
+APP_GEOMETRY = 'geometry'
