@@ -462,15 +462,13 @@ class InterfaceDiagram:
                     else:
                         position = config.PROTOCOL_IN_POSITION
 
-                    protocol_config = ProtocolConfig(
+                    self.create_protocol(ProtocolConfig(
                         app_name=app_name,
                         direction=direction,
                         row=row,
                         app_format=format_value if format_value is not None else "",
                         position=position
-                    )
-
-                    self.create_protocol(protocol_config)
+                    ))
 
     @debug_logging
     def create_instancies_connections(self, interfaces) -> None:
