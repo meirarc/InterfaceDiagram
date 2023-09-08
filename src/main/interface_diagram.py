@@ -19,6 +19,7 @@ class InterfaceDiagram:
     """
     Class to represent and generate an Interface Diagram.
     """
+
     @debug_logging
     def __init__(self, interfaces: List[InterfaceStructure]) -> None:
         """
@@ -426,68 +427,66 @@ class InterfaceDiagram:
         The combination of an application and the inbound and outbound protocols 
         results in an instance
         """
-        color_map = {
-            'sap_app': (config.FIRST_FILL_COLOR, config.FIRST_STROKE_COLOR),
-            'middleware': (config.MIDDLE_FILL_COLOR, config.MIDDLE_STROKE_COLOR),
-            'gateway': (config.GATEWAY_FILL_COLOR, config.GATEWAY_STROKE_COLOR),
-            'other_middleware': (config.OTHER_FILL_COLOR, config.OTHER_STROKE_COLOR),
-            'connected_app': (config.LAST_FILL_COLOR, config.LAST_STROKE_COLOR)
-        }
-
         current_code_id = None
         row = -1  # Initialize to -1 so that the first iteration sets it to 0
 
         for interface in interfaces:
 
-            # Check if the code_id has changed
-            if interface.code_id != current_code_id:
-                row += 1
-                current_code_id = interface.code_id
-
-            self.size_parameters.y_protocol = (self.size_parameters.y_protocol_start +
-                                               (config.PROTOCOL_HEIGHT + config.Y_OFFSET) * row)
+            row = self._update_row_and_protocol(
+                interface, current_code_id, row)
+            current_code_id = interface.code_id
 
             for app in interface.apps:
+                self._create_app_and_protocol(app, row)
 
-                app_type = app.app_type
-                app_name = app.app_name
-                format_value = app.format
+    def _update_row_and_protocol(self, interface, current_code_id, row):
+        if interface.code_id != current_code_id:
+            row += 1
+            self.size_parameters.y_protocol = (
+                self.size_parameters.y_protocol_start +
+                (config.PROTOCOL_HEIGHT + config.Y_OFFSET) * row
+            )
+        return row
 
-                fill_color, stroke_color = color_map.get(
-                    app_type, (config.APP_DEFAULT_FILL_COLOR, config.APP_DEFAULT_STROKE_COLOR))
+    def _create_app_and_protocol(self, app, row):
 
-                self.create_app(app_name, fill_color, stroke_color)
+        app_type = app.app_type
+        app_name = app.app_name
+        format_value = app.format
 
-                # Define the necessaries in or out protocols to be created
-                if app_type in ['middleware', 'gateway', 'other_middleware']:
-                    directions = ["out", "in"]
-                else:
-                    directions = ["out"] if app_type == 'sap_app' else ["in"]
+        fill_color, stroke_color = config.COLOR_MAP.get(
+            app_type, (config.APP_DEFAULT_FILL_COLOR, config.APP_DEFAULT_STROKE_COLOR))
 
-                for direction in directions:
-                    # Define the position
-                    if direction == "out":
-                        position = config.PROTOCOL_OUT_POSITION
-                    else:
-                        position = config.PROTOCOL_IN_POSITION
+        self.create_app(app_name, fill_color, stroke_color)
 
-                    self.create_protocol(ProtocolConfig(
-                        app_name=app_name,
-                        direction=direction,
-                        row=row,
-                        app_format=format_value if format_value is not None else "",
-                        position=position
-                    ))
+        # Define the necessaries in or out protocols to be created
+        directions = self._get_directions(app_type)
+
+        for direction in directions:
+
+            if direction == "out":
+                position = config.PROTOCOL_OUT_POSITION
+            else:
+                position = config.PROTOCOL_IN_POSITION
+
+            self.create_protocol(ProtocolConfig(
+                app_name=app_name,
+                direction=direction,
+                row=row,
+                app_format=format_value if format_value is not None else "",
+                position=position
+            ))
+
+    def _get_directions(self, app_type):
+        if app_type in ['middleware', 'gateway', 'other_middleware']:
+            return ["out", "in"]
+        return ["out"] if app_type == 'sap_app' else ["in"]
 
     @debug_logging
     def create_instancies_connections(self, interfaces) -> None:
         """
         After creating the application and protocols shapes, this function creates the 
-        connections and labels.
-        The connections connect the source and target protocol for each interface.
-        The labels are created above the connection and the ricefw URL is created down 
-        below the connections arrows.
-        The detail link generates a clickable link to an informed URL.
+        connections and labels...
         """
         current_code_id = None
         row = -1  # Initialize to -1 so that the first iteration sets it to 0
@@ -507,36 +506,41 @@ class InterfaceDiagram:
                 if not connection_app:
                     continue
 
-                app_name = app.app_name
-                direction = interface.direction
+                self._create_app_related_shapes(app, interface, row)
 
-                self.create_connection(ConnectionConfig(
-                    source=connection_app,
-                    target=app_name,
-                    row=row,
-                    direction=direction))
+    def _create_app_related_shapes(self, app, interface, row):
+        """Create shapes related to a specific app."""
+        connection_app = app.connection.app
+        app_name = app.app_name
+        direction = interface.direction
+        connection_detail = app.connection.detail
+        interface_info = app.interface
 
-                connection_detail = app.connection.detail
-                if connection_detail:
-                    self.create_detail(DetailConfig(
-                        source=connection_app,
-                        target=app_name,
-                        row=row,
-                        text=connection_detail
-                    ))
+        # Create Connection
+        self.create_connection(ConnectionConfig(
+            source=connection_app,
+            target=app_name,
+            row=row,
+            direction=direction))
 
-                interface_info = app.interface
-                if interface_info:
-                    interface_id = interface_info.interface_id
-                    interface_url = interface_info.interface_url
+        # Create Detail, if applicable
+        if connection_detail:
+            self.create_detail(DetailConfig(
+                source=connection_app,
+                target=app_name,
+                row=row,
+                text=connection_detail
+            ))
 
-                    self.create_detail_links(LinkConfig(
-                        source=connection_app,
-                        target=app_name,
-                        row=row,
-                        text=interface_id,
-                        url=interface_url
-                    ))
+        # Create Detail Links, if applicable
+        if interface_info:
+            self.create_detail_links(LinkConfig(
+                source=connection_app,
+                target=app_name,
+                row=row,
+                text=interface_info.interface_id,
+                url=interface_info.interface_url
+            ))
 
     @debug_logging
     def build_xml_file(self) -> None:

@@ -66,3 +66,11 @@ DEFAULT_EDGE = '1'
 
 OUTBOUND = "Outbound"
 INBOUND = "Inbound"
+
+COLOR_MAP = {
+    'sap_app': (FIRST_FILL_COLOR, FIRST_STROKE_COLOR),
+    'middleware': (MIDDLE_FILL_COLOR, MIDDLE_STROKE_COLOR),
+    'gateway': (GATEWAY_FILL_COLOR, GATEWAY_STROKE_COLOR),
+    'other_middleware': (OTHER_FILL_COLOR, OTHER_STROKE_COLOR),
+    'connected_app': (LAST_FILL_COLOR, LAST_STROKE_COLOR)
+}
