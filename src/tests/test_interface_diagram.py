@@ -93,8 +93,8 @@ class TestInterfaceDiagram(unittest.TestCase):
                               f'<mxGraphModel dx="1182" dy="916" grid="1" gridSize="10" guides="1"'
                               f' tooltips="1" connect="1" arrows="1" fold="1" page="1" '
                               f'pageScale="1" '
-                              f'pageWidth="{self.diagram.size_parameters["page_width"]}" '
-                              f'pageHeight="{self.diagram.size_parameters["app_height"]}" math="0" '
+                              f'pageWidth="{self.diagram.size_parameters.page_width}" '
+                              f'pageHeight="{self.diagram.size_parameters.app_height}" math="0" '
                               f'shadow="0"><root><mxCell id="0" /><mxCell id="1" parent="0" />'
                               f'</root></mxGraphModel></diagram></mxfile>')
 

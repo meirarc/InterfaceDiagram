@@ -11,6 +11,8 @@ from src.main.logging_utils import debug_logging
 from src.main.encoding_helper import EncodingHelper
 from src.main.data_definitions import InterfaceStructure
 
+from src.main.data_definitions import SizeParameters
+
 
 class InterfaceDiagram:
     """
@@ -33,25 +35,31 @@ class InterfaceDiagram:
         self.app_lists = self.populate_app_lists(interfaces)
         self.app_order, self.app_count = self.create_app_order(self.app_lists)
 
-        # Count the unique code_ids to get the correct number of rows
-        unique_code_ids = len(
-            set(interface.code_id for interface in interfaces))
-
-        app_height = config.APP_MIN_HEIGHT + \
-            (config.PROTOCOL_HEIGHT + config.Y_OFFSET) * (unique_code_ids - 1)
-        # Initialize size parameters
-        self.size_parameters = {
-            'y_protocol': config.Y_PROTOCOL_STARTS,
-            'y_protocol_start': config.Y_PROTOCOL_STARTED_POSITION,
-            'app_height': app_height,
-            'page_width': ((self.app_count * config.APP_SIZE_SPACE) - 1) * config.APP_WIDTH
-        }
+        self.size_parameters = self.calculate_size_parameters(interfaces)
 
         # Initialize XML content
         self.xml_content = {
             'mxfile': None,
             'root': None
         }
+
+    def calculate_size_parameters(self, interfaces):
+        """calculate the size parameters"""
+        unique_code_ids = len(
+            set(interface.code_id for interface in interfaces))
+
+        app_height = config.APP_MIN_HEIGHT + \
+            (config.PROTOCOL_HEIGHT + config.Y_OFFSET) * (unique_code_ids - 1)
+
+        page_width = ((self.app_count * config.APP_SIZE_SPACE) -
+                      1) * config.APP_WIDTH
+
+        return SizeParameters(
+            config.Y_PROTOCOL_STARTS,
+            config.Y_PROTOCOL_STARTED_POSITION,
+            app_height,
+            page_width
+        )
 
     @debug_logging
     def populate_app_lists(self, interfaces: List[InterfaceStructure]) -> Dict[str, List[str]]:
@@ -117,8 +125,8 @@ class InterfaceDiagram:
         diagram = ET.SubElement(self.xml_content['mxfile'], 'diagram',
                                 {'name': 'Page-1', 'id': 'xI1n7PUDQ-lDr-DjmP3Y'})
 
-        page_width = f'{self.size_parameters["page_width"]}'
-        page_height = f'{self.size_parameters["app_height"]}'
+        page_width = f'{self.size_parameters.page_width}'
+        page_height = f'{self.size_parameters.app_height}'
 
         mx_graph_model = ET.SubElement(diagram, 'mxGraphModel', {'dx': '1182', 'dy': '916',
                                                                  'grid': '1', 'gridSize': '10',
@@ -172,7 +180,7 @@ class InterfaceDiagram:
 
             x_value = f'{config.APP_WIDTH * config.APP_SIZE_SPACE * self.app_order[app_name]}'
             width_value = f'{config.APP_WIDTH}'
-            height_value = str(self.size_parameters["app_height"])
+            height_value = str(self.size_parameters.app_height)
 
             ET.SubElement(
                 mx_cell,
@@ -233,7 +241,7 @@ class InterfaceDiagram:
 
             ET.SubElement(mx_cell, 'mxGeometry', {
                 'x': f'{x_position}',
-                'y': f'{self.size_parameters["y_protocol"]}',
+                'y': f'{self.size_parameters.y_protocol}',
                 'width': f'{config.PROTOCOL_WIDTH}',
                 'height': f'{config.PROTOCOL_HEIGHT}',
                 'as': 'geometry'
@@ -335,7 +343,7 @@ class InterfaceDiagram:
             # Create an 'mxGeometry' XML element for the connections
             mx_geometry_attrs = {
                 'x': str(x_position),
-                'y': str(self.size_parameters["y_protocol"] - config.DETAIL_SUB_SPACING),
+                'y': str(self.size_parameters.y_protocol - config.DETAIL_SUB_SPACING),
                 'width': str(config.DETAIL_WIDTH),
                 'height': str(config.DETAIL_HEIGHT),
                 'as': 'geometry'
@@ -387,7 +395,7 @@ class InterfaceDiagram:
             # Create an 'mxGeometry' XML element for the connections
             mx_geometry_attrs = {
                 'x': str(x_position),
-                'y': str(self.size_parameters["y_protocol"] + 10),
+                'y': str(self.size_parameters.y_protocol + 10),
                 'width': str(config.DETAIL_WIDTH),
                 'height': str(config.DETAIL_HEIGHT),
                 'as': 'geometry'
@@ -423,7 +431,7 @@ class InterfaceDiagram:
                 row += 1
                 current_code_id = interface.code_id
 
-            self.size_parameters["y_protocol"] = (self.size_parameters["y_protocol_start"] +
+            self.size_parameters.y_protocol = (self.size_parameters.y_protocol_start +
                                                   (config.PROTOCOL_HEIGHT + config.Y_OFFSET) * row)
 
             for app in interface.apps:
@@ -477,7 +485,7 @@ class InterfaceDiagram:
                 row += 1
                 current_code_id = interface.code_id
 
-            self.size_parameters["y_protocol"] = (self.size_parameters["y_protocol_start"] +
+            self.size_parameters.y_protocol = (self.size_parameters.y_protocol_start +
                                                   (config.PROTOCOL_HEIGHT + config.Y_OFFSET) * row)
 
             for app in interface.apps:
