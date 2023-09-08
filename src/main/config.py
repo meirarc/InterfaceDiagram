@@ -67,6 +67,7 @@ DEFAULT_EDGE = '1'
 OUTBOUND = "Outbound"
 INBOUND = "Inbound"
 
+# color map to be used on the diagram class
 COLOR_MAP = {
     'sap_app': (FIRST_FILL_COLOR, FIRST_STROKE_COLOR),
     'middleware': (MIDDLE_FILL_COLOR, MIDDLE_STROKE_COLOR),
