@@ -9,7 +9,8 @@ from typing import List, Dict, Tuple
 from src.main import config
 from src.main.logging_utils import debug_logging
 from src.main.encoding_helper import EncodingHelper
-from src.main.data_definitions import ConnectionConfig, InterfaceStructure, ProtocolConfig
+from src.main.data_definitions import (
+    ConnectionConfig, DetailConfig, InterfaceStructure, ProtocolConfig)
 
 from src.main.data_definitions import SizeParameters
 
@@ -312,52 +313,55 @@ class InterfaceDiagram:
         ET.SubElement(mx_cell, 'mxGeometry', mx_geometry_attrs)
 
     @debug_logging
-    def create_detail(self, detail_params: dict) -> None:
+    def create_detail(self, detail_config: DetailConfig) -> None:
         """
         This method creates a label in the Draw.io diagram structure. 
         Each label is represented as an 'mxCell' XML element with specific attributes.
 
         :param detail_params: A dictionary containing the necessary parameters.
         """
-        source = detail_params['source']
-        target = detail_params['target']
-        row = detail_params['row']
-        text = detail_params['text']
+        source = detail_config.source
+        target = detail_config.target
+        row = detail_config.row
+        text = detail_config.text
 
         object_id = f'detail_{source}_{target}_{row}'
 
         # Ensure that each ID is unique
-        if object_id not in self.list_of_ids:
-            self.list_of_ids.append(object_id)
+        if object_id in self.list_of_ids:
+            logging.info('Object ID %s is already used.', object_id)
+            return
 
-            style = 'text;html=1;strokeColor=none;fillColor=none;align=center;'\
-                    'verticalAlign=middle;whiteSpace=wrap;rounded=0'
+        self.list_of_ids.append(object_id)
 
-            x_position = config.X_DETAIL_INITIAL + (config.APP_WIDTH *
-                                                    config.APP_SIZE_SPACE) * self.app_order[source]
+        style = 'text;html=1;strokeColor=none;fillColor=none;align=center;'\
+                'verticalAlign=middle;whiteSpace=wrap;rounded=0'
 
-            # Create an 'mxCell' XML element for the text shape related to the detail
-            mx_cell_attrs = {
-                'id': object_id,
-                'value': text,
-                'style': style,
-                'parent': '1',
-                'vertex': '1'
-            }
+        x_position = config.X_DETAIL_INITIAL + (config.APP_WIDTH *
+                                                config.APP_SIZE_SPACE) * self.app_order[source]
 
-            mx_cell = ET.SubElement(
-                self.xml_content['root'], 'mxCell', mx_cell_attrs)
+        # Create an 'mxCell' XML element for the text shape related to the detail
+        mx_cell_attrs = {
+            'id': object_id,
+            'value': text,
+            'style': style,
+            'parent': config.DEFAULT_PARENT_ID,
+            'vertex': config.DEFAULT_VERTEX
+        }
 
-            # Create an 'mxGeometry' XML element for the connections
-            mx_geometry_attrs = {
-                'x': str(x_position),
-                'y': str(self.size_parameters.y_protocol - config.DETAIL_SUB_SPACING),
-                'width': str(config.DETAIL_WIDTH),
-                'height': str(config.DETAIL_HEIGHT),
-                'as': 'geometry'
-            }
+        mx_cell = ET.SubElement(
+            self.xml_content['root'], 'mxCell', mx_cell_attrs)
 
-            ET.SubElement(mx_cell, 'mxGeometry', mx_geometry_attrs)
+        # Create an 'mxGeometry' XML element for the connections
+        mx_geometry_attrs = {
+            'x': str(x_position),
+            'y': str(self.size_parameters.y_protocol - config.DETAIL_SUB_SPACING),
+            'width': str(config.DETAIL_WIDTH),
+            'height': str(config.DETAIL_HEIGHT),
+            'as': config.APP_GEOMETRY
+        }
+
+        ET.SubElement(mx_cell, 'mxGeometry', mx_geometry_attrs)
 
     @debug_logging
     def create_detail_links(self, link_params: dict) -> None:
@@ -513,13 +517,12 @@ class InterfaceDiagram:
 
                 connection_detail = app.connection.detail
                 if connection_detail:
-                    self.create_detail({
-                        'source': connection_app,
-                        'target': app_name,
-                        'row': row,
-                        'text': connection_detail,
-                        'direction': direction
-                    })
+                    self.create_detail(DetailConfig(
+                        source=connection_app,
+                        target=app_name,
+                        row=row,
+                        text=connection_detail
+                    ))
 
                 interface_info = app.interface
                 if interface_info:

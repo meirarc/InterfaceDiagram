@@ -75,3 +75,12 @@ class ConnectionConfig:
     target: str
     row: int
     direction: str
+
+
+@dataclass
+class DetailConfig:
+    """Detail config for the Diagram Class"""
+    source: str
+    target: str
+    row: int
+    text: str
