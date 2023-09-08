@@ -12,6 +12,13 @@ from src.main.local_interface_url_getter import LocalInterfaceURLGetter
 SOURCE_DIR = './diagram/in'
 EXCEL_FILE = './diagram/out/interfaces_diagrams_urls.xlsx'
 
-getter = LocalInterfaceURLGetter(SOURCE_DIR, EXCEL_FILE)
-getter.process_json_files()
-getter.save_results()
+
+def main():
+    """main function"""
+    getter = LocalInterfaceURLGetter(SOURCE_DIR, EXCEL_FILE)
+    getter.process_json_files()
+    getter.save_results()
+
+
+if __name__ == '__main__':
+    main()
