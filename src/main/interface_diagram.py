@@ -27,7 +27,6 @@ class InterfaceDiagram:
         """
         # Configuration parameters
         self.interfaces = interfaces
-
         self.list_of_ids = []  # Control of ids
 
         # Initialize application lists and orders
@@ -397,7 +396,7 @@ class InterfaceDiagram:
             ET.SubElement(mx_cell, 'mxGeometry', mx_geometry_attrs)
 
     @debug_logging
-    def create_instancies(self) -> None:
+    def create_instancies(self, interfaces) -> None:
         """
         Loop into the interfaces to find all the applications and protocols 
         that need to be created on the draw.io diagram
@@ -417,7 +416,7 @@ class InterfaceDiagram:
         current_code_id = None
         row = -1  # Initialize to -1 so that the first iteration sets it to 0
 
-        for interface in self.interfaces:
+        for interface in interfaces:
 
             # Check if the code_id has changed
             if interface.code_id != current_code_id:
@@ -460,7 +459,7 @@ class InterfaceDiagram:
                     })
 
     @debug_logging
-    def create_instancies_connections(self) -> None:
+    def create_instancies_connections(self, interfaces) -> None:
         """
         After creating the application and protocols shapes, this function creates the 
         connections and labels.
@@ -472,7 +471,7 @@ class InterfaceDiagram:
         current_code_id = None
         row = -1  # Initialize to -1 so that the first iteration sets it to 0
 
-        for interface in self.interfaces:
+        for interface in interfaces:
 
             if interface.code_id != current_code_id:
                 row += 1
@@ -523,8 +522,8 @@ class InterfaceDiagram:
         Create the whole structure of the xml file readable by draw.io
         """
         self.initialize_xml_structure()
-        self.create_instancies()
-        self.create_instancies_connections()
+        self.create_instancies(self.interfaces)
+        self.create_instancies_connections(self.interfaces)
 
     @debug_logging
     def generate_diagram_url(self, encoder: EncodingHelper()):
