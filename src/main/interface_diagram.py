@@ -161,48 +161,41 @@ class InterfaceDiagram:
             return
 
         object_id = app_name
-
         # Ensure that each ID is unique
-        if object_id in self.list_of_ids:
-            logging.warning('Object ID %s is already used.', object_id)
-            return
+        if object_id not in self.list_of_ids:
+            self.list_of_ids.append(object_id)
+            # Create an 'mxCell' XML element for the application shape
 
-        # Ensure that each ID is unique
-
-        self.list_of_ids.append(object_id)
-
-        # Create style string
-        style_str = (f'rounded=1;whiteSpace=wrap;html=1;fillColor={fill_color};'
+            style = (f'rounded=1;whiteSpace=wrap;html=1;fillColor={fill_color};'
                      f'strokeColor={stroke_color};verticalAlign=top;')
 
-        # Create an 'mxCell' XML element for the application shape
-        mx_cell = ET.SubElement(
-            self.xml_content['root'],
-            'mxCell',
-            {
-                'id': object_id,
-                'value': app_name,
-                'style': style_str,
-                'parent': config.DEFAULT_PARENT_ID,
-                'vertex': config.DEFAULT_VERTEX
-            }
-        )
+            mx_cell = ET.SubElement(
+                self.xml_content['root'],
+                'mxCell',
+                {
+                    'id': object_id,
+                    'value': app_name,
+                    'style': style,
+                    'parent': '1',
+                    'vertex': '1'
+                }
+            )
 
-        x_value = f'{config.APP_WIDTH * config.APP_SIZE_SPACE * self.app_order[app_name]}'
-        width_value = f'{config.APP_WIDTH}'
-        height_value = str(self.size_parameters.app_height)
+            x_value = f'{config.APP_WIDTH * config.APP_SIZE_SPACE * self.app_order[app_name]}'
+            width_value = f'{config.APP_WIDTH}'
+            height_value = str(self.size_parameters.app_height)
 
-        ET.SubElement(
-            mx_cell,
-            'mxGeometry',
-            {
-                'x': x_value,
-                'y': '0',
-                'width': width_value,
-                'height': height_value,
-                'as': config.APP_GEOMETRY
-            }
-        )
+            ET.SubElement(
+                mx_cell,
+                'mxGeometry',
+                {
+                    'x': x_value,
+                    'y': '0',
+                    'width': width_value,
+                    'height': height_value,
+                    'as': 'geometry'
+                }
+            )
 
     @debug_logging
     def create_protocol(self, protocol_config: dict) -> None:
